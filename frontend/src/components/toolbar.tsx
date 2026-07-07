@@ -46,22 +46,25 @@ export function Toolbar({
         </span>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex shrink-0 items-center gap-3">
         <Label className="whitespace-nowrap text-sm text-muted-foreground">Opacity</Label>
-        <Slider
-          value={[opacity]}
-          min={0}
-          max={1}
-          step={0.01}
-          disabled={disabled}
-          aria-label="Artwork opacity"
-          onValueChange={(value) => {
-            if (activeTemplateId) {
-              onArtworkOpacity(activeTemplateId, Array.isArray(value) ? value[0] : value);
-            }
-          }}
-          className="w-40"
-        />
+        {/* Fixed-width wrapper: the Slider hardcodes `w-full`, so it fills this
+            box instead of collapsing to min-content in the flex row. */}
+        <div className="w-40 shrink-0">
+          <Slider
+            value={[opacity]}
+            min={0}
+            max={1}
+            step={0.01}
+            disabled={disabled}
+            aria-label="Artwork opacity"
+            onValueChange={(value) => {
+              if (activeTemplateId) {
+                onArtworkOpacity(activeTemplateId, Array.isArray(value) ? value[0] : value);
+              }
+            }}
+          />
+        </div>
         <span className="w-10 text-right font-mono text-xs text-muted-foreground">
           {disabled ? '—' : toPercent(opacity)}
         </span>
