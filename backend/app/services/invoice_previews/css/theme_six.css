@@ -1,0 +1,131 @@
+@media screen {
+  .page-header {
+    height: 5mm;
+  }
+
+  .page-footer {
+    height: 5mm;
+    margin-top: 8px;
+  }
+
+  body {
+    padding: 4mm 5mm;
+    width: 200mm;
+  }
+}
+
+@media print {
+  html {
+    background-color: initial;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    padding: 0mm 5mm;
+    min-width: 200mm;
+    width: fit-content;
+  }
+
+  .page-footer {
+    width: calc(100% - 2 * 5mm);
+    position: fixed;
+    bottom: 0;
+    padding-bottom: 1mm;
+  }
+
+  .page-header {
+    width: calc(100% - 2 * 5mm);
+    position: fixed;
+    top: 0;
+    padding-top: 1mm;
+  }
+
+  #main-header {
+    display: table-header-group;
+  }
+
+  #main-footer {
+    display: table-footer-group;
+  }
+
+  .page-header,
+  .page-header-space {
+    height: 5mm;
+  }
+
+  .page-footer,
+  .page-footer-space {
+    height: 5mm;
+  }
+
+  .highlight {
+    display: none;
+    visibility: hidden;
+  }
+}
+
+@page {
+  size: A5 landscape;
+  margin: 0mm !important;
+}
+
+.page-header-tagline {
+  font-size: 2.5mm;
+}
+
+.page-header-type {
+  font-size: 2.5mm;
+}
+
+.page-header-sub-type {
+  padding: 1px 2px;
+}
+
+/* Company Details */
+
+#company-details-content {
+  text-align: center;
+  align-items: center;
+}
+
+#company-addn-fields-container {
+  display: flex;
+  flex-wrap: wrap;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+}
+
+#company-addn-fields-container>div {
+  padding-right: 16px;
+}
+
+#company-mobile-number-content,
+#company-email-content {
+  padding-right: 16px;
+}
+
+#dummy-div {
+  height: 100%;
+  width: 21mm;
+}
+
+.sub-details-class,
+#invoice-main-details {
+  min-height: 10mm;
+}
+
+/* Only applies border-top to receiver-signature when it comes after signature div */
+#signature+#receiver-signature {
+  border-top: 1px solid;
+  /* Adjust color and width as needed */
+}
+
+/* Hides the signature container if it's empty or if neither the signature nor receiver-signature has content */
+.signature-container:empty,
+.signature-container:not(:has(#signature:not(:empty), #receiver-signature:not(:empty))) {
+  display: none;
+}```
+
+## CSS: theme_seven.css

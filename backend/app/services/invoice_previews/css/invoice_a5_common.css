@@ -1,0 +1,119 @@
+/* Company Details */
+.company-logo-container,
+#company-logo {
+  height: 54px;
+  width: 54px;
+}
+
+#company-name {
+  font-size: 16px;
+}
+
+#company-details {
+  min-height: 0px;
+}
+
+#company-address,
+#company-contact-details,
+#company-contact-details-2,
+#company-pan-number-content {
+  font-size: 11px;
+}
+
+#company-pan-number-content {
+  margin-right: 12px;
+}
+
+.meta-bill-ship-to {
+  padding-bottom: 4px;
+  line-height: 12px;
+}
+
+.party-addn-field {
+  line-height: 12px;
+}
+
+/* Table */
+#items-table th {
+  font-size: 11px;
+}
+
+#items-table th,
+#items-table tr:last-child td {
+  padding: 4px;
+}
+
+#items-table td {
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+/* Misc Details */
+.misc-details-container {
+  flex-flow: row wrap;
+  border-top: 1px solid black;
+}
+
+.bottom-content-container {
+  margin-top: 4px;
+}
+
+.bank-details-info {
+  margin-bottom: 2px;
+}
+
+/* Notes */
+
+/* Notes container */
+#notes-container {
+  border: 1px solid black;
+  border-bottom: 0px;
+  display: flex;
+}
+
+#notes {
+  display: flex;
+  padding-right: 2mm;
+  flex: 1;
+  align-items: center;
+}
+
+#notes-label {
+  padding-right: 0mm;
+  font-size: 11px;
+}
+
+#items-table-received-label,
+#items-table-balance-label,
+#items-table-curr-balance-label,
+#items-table-prev-balance-label,
+#linked-cndn-record-label {
+  font-weight: 500;
+}
+
+/* Received balance amount container */
+#received-balance-amount-container {
+  display: flex;
+  flex-direction: row;
+  font-size: 11px;
+  border-top: 1px solid black;
+  border-left: 1px solid black;
+}
+
+#received-amount,
+#balance-amount,
+#prev-balance,
+#current-balance,
+#linked-cndn-record {
+  flex: 1;
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-right: 1px solid black;
+  display: none;
+}```
+
+## CSS: theme_luxury.css

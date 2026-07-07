@@ -1,0 +1,529 @@
+@media screen {
+  .page-header {
+    height: 10mm;
+  }
+
+  .page-footer {
+    height: 10mm;
+  }
+
+  body {
+    padding: 5mm 8mm;
+    width: 194mm;
+  }
+}
+
+@media print {
+  html {
+    background-color: initial;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    padding: 0mm 8mm;
+    min-width: 194mm;
+    width: fit-content;
+  }
+
+  .page-footer {
+    width: calc(100% - 2 * 8mm);
+    position: fixed;
+    bottom: 0;
+    padding-bottom: 2mm;
+  }
+
+  .page-header {
+    width: calc(100% - 2 * 8mm);
+    position: fixed;
+    top: 0;
+    padding-top: 2mm;
+  }
+
+  #main-header {
+    display: table-header-group;
+  }
+
+  #main-footer {
+    display: table-footer-group;
+  }
+
+  .page-header,
+  .page-header-space {
+    height: 5mm;
+  }
+
+  .page-footer,
+  .page-footer-space {
+    height: 9mm;
+  }
+
+  .highlight {
+    display: none;
+    visibility: hidden;
+  }
+}
+
+@page {
+  size: A4;
+  margin: 0mm !important;
+}
+
+.page-header-tagline {
+  font-size: 3.5mm;
+}
+
+.page-header-sub-type {
+  padding: 4px 8px;
+  margin-right: 0px;
+}
+
+.page-header-type-value {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* Company Details */
+.company-logo-container,
+#company-logo {
+  height: 100px;
+  width: 100px;
+  padding-right: 8px;
+}
+
+#company-details-meta {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 8px;
+  padding-right: 24px;
+  border-right: 1px solid black;
+}
+
+#company-details {
+  border: none;
+}
+
+#company-name {
+  font-size: 16px;
+  font-weight: 600 !important;
+}
+
+#company-details-content>div {
+  margin-bottom: 4px;
+  font-weight: 300;
+}
+
+#company-addn-fields-container > div {
+  padding-right: 16px;
+  margin-bottom: 4px;
+}
+
+#company-logo {
+  margin-left: 0px;
+}
+
+#company-address,
+#company-email-content,
+#company-contact-details,
+#company-mobile-number-content,
+#company-gst-number-content,
+#company-pan-number-content {
+  font-size: 12px;
+}
+
+#company-contact-details>div {
+  margin-right: 24px;
+}
+
+/* Amount in words */
+#amount-words {
+  display: block;
+  padding-bottom: 1mm;
+  font-size: 12px;
+  text-align: end;
+}
+
+#amount-words-container {
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+#foreign-amount-words {
+  border: none;
+  display: flex;
+  align-items: flex-end;
+  text-align: end;
+}
+
+#amount-words-label,
+#foreign-amount-words-label {
+  align-self: auto;
+  text-align: end;
+}
+
+#amount-words-label,
+#foreign-amount-words-label,
+#amount-words-value,
+#foreign-amount-words-value {
+  font-size: 12px;
+  align-self: flex-end;
+}
+
+/* Misc Details */
+.misc-details {
+  page-break-inside: avoid !important;
+}
+
+/* UPI Details */
+#upi-details-meta {
+  font-size: 12px;
+  flex-grow: 0;
+  padding-left: 0px;
+  margin-right: 16px;
+}
+
+#upi-scan-label {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+#upi-details {
+  display: block;
+}
+
+#upi-details-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+#upi-qr-code {
+  padding-left: 0px;
+}
+
+#mbb-pay {
+  margin-left: 0px;
+}
+
+/** All Tables */
+table,
+tr,
+td,
+th {
+  border: none !important;
+}
+
+/** Invoice meta details */
+#invoice-details-meta {
+  border: none;
+  padding: 16px;
+  padding-top: 8px;
+  padding-bottom: 0px;
+}
+
+#invoice-main-details {
+  font-weight: 400;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+}
+
+#company-gst-number-content {
+  margin-right: 0px;
+}
+
+#invoice-main-details>div {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+#invoice-main-details>div>div:last-child {
+  font-weight: 500;
+}
+
+/** Invoice Sub Details */
+#invoice-sub-details {
+  text-align: start;
+  flex-direction: column;
+  align-items: flex-start;
+  border: none;
+  padding-left: 8px;
+  text-align: center;
+  justify-content: flex-start;
+}
+
+#invoice-sub-details>div {
+  flex-direction: row;
+  display: flex;
+  margin-bottom: 8px;
+}
+
+#invoice-sub-details>div>div:first-child {
+  margin-right: 8px;
+}
+
+#invoice-sub-details>div>div:first-child::after {
+  content: ": ";
+}
+
+/* Address Details */
+#address-details {
+  border: none;
+}
+
+/** Bill to & Ship to Section */
+#bill-to-company-name,
+#ship-to-company-name {
+  margin: 0px;
+  margin-left: 16px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  text-transform: capitalize;
+}
+
+#ship-to,
+#bill-to {
+  border: none;
+}
+
+.title-bill-ship-to {
+  margin: 0px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  background-color: #ecedee;
+}
+
+.party-addn-field,
+.meta-bill-ship-to {
+  font-size: 12px !important;
+  line-height: 13.81px;
+  font-weight: 400;
+}
+
+.meta-bill-ship-to {
+  padding-left: 16px;
+  padding-bottom: 8px;
+}
+
+.meta-bill-ship-to>div {
+  margin: 0px;
+  margin-bottom: 4px;
+  display: flex;
+  flex-direction: row;
+}
+
+/* Items table */
+#items-table {
+  border: none;
+  background-color: none;
+}
+
+.items-table-header {
+  text-align: right;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.items-table-info {
+  text-align: right;
+  font-size: 13px;
+  font-weight: 400;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  text-transform: uppercase;
+}
+
+.items-table-total {
+  font-size: 13px;
+}
+
+.item-name {
+  letter-spacing: 0.1px;
+}
+
+.text-small {
+  font-size: 12px !important;
+}
+
+#items-table-total-label {
+  text-align: left;
+}
+
+.item-serial-no,
+.item-imei {
+  font-size: 11px;
+  text-transform: none;
+}
+
+.item-serial-number,
+.items-serial-number-header {
+  text-align: center;
+}
+
+.items-type-header {
+  text-align: left;
+}
+
+.item-name-desc {
+  text-align: left;
+}
+
+/** After table container. */
+#after-table-container {
+  display: flex;
+  flex-direction: row;
+  color: #000000;
+  font-size: 12px !important;
+}
+
+#after-table-container>div {
+  flex: 1;
+}
+
+#invoice-bottom-content-left,
+#invoice-bottom-content-right {
+  padding: 8px;
+}
+
+#invoice-bottom-content-left {
+  border-right: 1px solid black;
+}
+
+#invoice-bottom-content-left>div {
+  margin-bottom: 16px;
+}
+
+#invoice-bottom-content-left>div:last-child {
+  margin-bottom: 0px;
+}
+
+#invoice-total-table {
+  font-size: 12px;
+  border-collapse: collapse;
+}
+
+.invoice-total-section-data {
+  text-align: right;
+  padding-bottom: 2px;
+}
+
+/* Bank Details, notes and Tnc*/
+.bank-details-info {
+  font-size: 12px;
+  padding-left: 0px;
+}
+
+.bank-details-info-label {
+  padding-left: 0px;
+}
+
+#notes-label,
+#bank-details-label,
+#tnc-label {
+  padding-left: 0px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+#notes-value,
+#tnc-value {
+  font-size: 12px;
+  padding-left: 0px;
+}
+
+/* Signature */
+#signature-label,
+#signatory-name {
+  font-size: 12px;
+}
+
+#signature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 8px;
+}
+
+#receiver-signature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 8px;
+}
+
+#signature-img-container {
+  border-radius: 10px;
+  margin-top: 8px;
+  height: 77px;
+  width: 143px;
+}
+
+#receiver-signature-container {
+  border-radius: 10px;
+  margin-top: 8px;
+  height: 77px;
+  width: 143px;
+}
+
+/** Divider */
+.hr-divider {
+  color: #FFFFFF;
+  height: 4px;
+}
+
+.divider {
+  width: 1px;
+  height: 24px;
+  background-color: #ecedee;
+}
+
+.vertical-divider {
+  width: 1px;
+  justify-content: flex-start;
+  flex-direction: column;
+  background-color: black;
+}
+
+/** Main content border */
+#main-content-invoice {
+  border: 1px solid black !important;
+}
+#invoice-addn-field-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+}
+#invoice-addn-field-name {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+#invoice-addn-fields-container > div {
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+#invoice-addn-fields-container > div > div {
+  flex: 1 !important;
+}
+
+#invoice-addn-fields-container > div > div:first-child {
+  text-align: start !important;
+}
+
+#invoice-addn-fields-container > div > div:last-child {
+  text-align: end !important;
+}

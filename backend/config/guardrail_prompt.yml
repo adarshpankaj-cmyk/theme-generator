@@ -1,0 +1,20 @@
+# Layer-1 readability guardrail (F2). Wraps the user's theme prompt in a fixed
+# "invoice-safe" template before sending it to the image model. Editable config;
+# see backend/SPEC.md §6.1. Substitutions: {{USER_PROMPT}}, {{ORIENTATION}}.
+guardrail: |
+  Create a decorative background artwork for a business invoice on the theme: "{{USER_PROMPT}}".
+
+  HARD RULES (readability):
+  - Keep the CENTER and the full VERTICAL MIDDLE COLUMN of the image light, calm, near-empty, and low-contrast — invoice text sits there.
+  - Push all detail, color, and motifs to the EDGES and CORNERS only.
+  - NO text, letters, numbers, or logos anywhere in the image.
+  - Soft / pastel / muted palette. Light textures. One single strong theme idea.
+  - Spacious composition. No heavy gradients, no loud colors, no clutter.
+  - Must remain legible when placed at 30–40% opacity behind black text.
+
+  ORIENTATION: {{ORIENTATION}}.
+
+# Orientation phrase per canvas.
+orientation:
+  a4: "portrait, taller than wide"
+  a5: "landscape, wider than tall"

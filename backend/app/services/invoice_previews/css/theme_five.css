@@ -1,0 +1,149 @@
+@media screen {
+  .page-header {
+    height: 10mm;
+  }
+
+  .page-footer {
+    height: 10mm;
+  }
+
+  body {
+    padding: 4mm 10mm;
+    width: 190mm;
+  }
+}
+
+@media print {
+  html {
+    background-color: initial;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    padding: 0mm 10mm;
+    min-width: 190mm;
+    width: fit-content;
+  }
+
+  .page-footer {
+    width: calc(100% - 2 * 10mm);
+    position: fixed;
+    bottom: 0;
+    padding-bottom: 2mm;
+  }
+
+  .page-header {
+    width: calc(100% - 2 * 10mm);
+    position: fixed;
+    top: 0;
+    padding-top: 2mm;
+  }
+
+  #main-header {
+    display: table-header-group;
+  }
+
+  #main-footer {
+    display: table-footer-group;
+  }
+
+  .page-header,
+  .page-header-space {
+    height: 11mm;
+  }
+
+  .page-footer,
+  .page-footer-space {
+    height: 9mm;
+  }
+
+  .highlight {
+    display: none;
+    visibility: hidden;
+  }
+}
+
+@page {
+  size: A4;
+  margin: 0mm !important;
+}
+
+.page-header-tagline {
+  font-size: 3.5mm;
+}
+
+.page-header-sub-type {
+  padding: 2px 4px;
+}
+
+/* Company Details */
+.company-logo-container,
+#company-logo {
+  height: 23mm;
+  width: 23mm;
+}
+
+#company-details-content {
+  text-align: center;
+  align-items: center;
+}
+
+#company-addn-fields-container {
+  display: flex;
+  flex-wrap: wrap;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+}
+
+#company-addn-fields-container > div {
+  padding-right: 16px;
+}
+
+#company-mobile-number-content,
+#company-email-content {
+  padding-right: 16px;
+}
+
+#dummy-div {
+  height: 100%;
+  width: 23mm;
+}
+
+/* Item Details */
+#items-table {
+  margin-bottom: 2mm;
+}
+
+/* Misc Details */
+.misc-details-container {
+  flex-flow: row wrap;
+}
+
+.misc-details:nth-last-child(5):first-child,
+.misc-details:nth-last-child(5):first-child~.misc-details {
+  flex-basis: 30%;
+}
+
+.misc-details:nth-last-child(4):first-child,
+.misc-details:nth-last-child(4):first-child~.misc-details {
+  flex-basis: 40%;
+}
+
+/* UPI Details */
+#upi-details {
+  display: block;
+}
+
+#upi-details-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.sub-details-class,
+#invoice-main-details {
+  min-height: 12mm;
+}```
+
+## CSS: theme_six.css

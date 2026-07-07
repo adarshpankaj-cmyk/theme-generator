@@ -1,0 +1,140 @@
+# Template Registry — the deterministic core (F1).
+#
+# The 9 CSS templates are stable boilerplate; the only per-theme variables are
+# the artwork images, tint hex, opacity, and which invoice strips get tinted.
+# Selector lists here are VERBATIM (order matters) from the reference theme at
+# ~/Downloads/Themes/ganesh/css/<template>/latest.css — the ground truth the
+# golden test (F3) asserts against. See backend/SPEC.md §3.
+#
+# `layout` is a cosmetic, unconfirmed best-inference label ([NEED: confirm]
+# against internal invoice layout names); it does not affect output.
+#
+# canvas: a4 (portrait) or a5 (landscape). theme_four and theme_six are the A5
+# templates; the rest are A4.
+
+theme_luxury:
+  canvas: a4
+  layout: luxury
+  default_opacity: 0.35
+  selectors:
+    - ".items-table-header"
+    - ".tax-table-header"
+    - ".items-table-total"
+    - ".items-table-total-foreign"
+
+theme_one:
+  canvas: a4
+  layout: modern_a
+  default_opacity: 0.35
+  selectors:
+    - ".title-bill-ship-to"
+    - ".items-table-total"
+    - ".items-table-total-foreign"
+    - ".items-table-header"
+    - ".tax-table-header"
+    - ".page-footer"
+
+theme_two:
+  canvas: a4
+  layout: modern_b
+  default_opacity: 0.35
+  selectors:
+    - ".title-bill-ship-to"
+    - ".items-table-header"
+    - ".items-table-total"
+    - ".items-table-total-foreign"
+    - ".tax-table-header"
+    - ".page-footer"
+
+theme_three:
+  canvas: a4
+  layout: adv_gst_full_row
+  default_opacity: 0.35
+  selectors:
+    - ".items-table-header"
+    - ".tax-table-header"
+    - ".items-table-total"
+    - ".items-table-total-foreign"
+    - 'td[class^="items-table-tax-total-"]'
+    - ".items-table-balance"
+    - ".items-table-received"
+    - ".items-table-prev-balance"
+    - ".items-table-total-payable"
+    - ".items-table-tax-tds"
+    - ".items-table-curr-balance"
+    - ".items-table-linked-cndn-record"
+
+theme_four:
+  canvas: a5
+  layout: a5_short
+  default_opacity: 0.35
+  selectors:
+    - ".items-table-header"
+    - ".items-table-total"
+    - ".items-table-total-foreign"
+    - ".tax-table-header"
+
+theme_five:
+  canvas: a4
+  layout: adv_gst_tally_full_row
+  default_opacity: 0.35
+  selectors:
+    - ".items-table-header"
+    - ".tax-table-header"
+    - ".items-table-total"
+    - ".items-table-total-foreign"
+    - 'td[class^="items-table-tax-total-"]'
+    - ".items-table-balance"
+    - ".items-table-received"
+    - ".items-table-prev-balance"
+    - ".items-table-total-payable"
+    - ".items-table-tax-tds"
+    - ".items-table-curr-balance"
+    - ".items-table-linked-cndn-record"
+
+theme_six:
+  canvas: a5
+  layout: a5_full_row
+  default_opacity: 0.35
+  selectors:
+    - ".items-table-header"
+    - ".items-table-total"
+    - ".items-table-total-foreign"
+    - 'td[class^="items-table-tax-total-"]'
+    - ".items-table-balance"
+    - ".items-table-received"
+    - ".items-table-prev-balance"
+    - ".items-table-total-payable"
+    - ".items-table-tax-tds"
+    - ".items-table-curr-balance"
+    - ".items-table-linked-cndn-record"
+    - ".tax-table-header"
+
+theme_seven:
+  canvas: a4
+  layout: stylish
+  default_opacity: 0.35
+  selectors:
+    - "#invoice-details-meta"
+    - ".items-table-total"
+    - ".items-table-header"
+    - ".page-footer"
+    - ".tax-table-header"
+
+theme_eight:
+  canvas: a4
+  layout: billbook_full_row
+  default_opacity: 0.35
+  selectors:
+    - ".items-table-header"
+    - ".tax-table-header"
+    - ".items-table-total"
+    - ".items-table-total-foreign"
+    - 'td[class^="items-table-tax-total-"]'
+    - ".items-table-balance"
+    - ".items-table-received"
+    - ".items-table-prev-balance"
+    - ".items-table-total-payable"
+    - ".items-table-tax-tds"
+    - ".items-table-curr-balance"
+    - ".items-table-linked-cndn-record"

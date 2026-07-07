@@ -1,0 +1,103 @@
+@media screen {
+  .page-header {
+    height: 9mm;
+  }
+
+  .page-footer {
+    height: 9mm;
+  }
+
+  body {
+    padding: 4mm 10mm;
+    width: 190mm;
+  }
+}
+
+@media print {
+  html {
+    background-color: initial;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    padding: 0mm 10mm;
+    min-width: 190mm;
+    width: fit-content;
+  }
+
+  .page-footer {
+    width: calc(100% - 2 * 10mm);
+    position: fixed;
+    bottom: 0;
+    padding-bottom: 1mm;
+  }
+
+  .page-header {
+    width: calc(100% - 2 * 10mm);
+    position: fixed;
+    top: 0;
+    padding-top: 1mm;
+  }
+
+  #main-header {
+    display: table-header-group;
+  }
+
+  #main-footer {
+    display: table-footer-group;
+  }
+
+  .page-header,
+  .page-header-space {
+    height: 9mm;
+  }
+
+  .page-footer,
+  .page-footer-space {
+    height: 9mm;
+  }
+
+  .highlight {
+    display: none;
+    visibility: hidden;
+  }
+}
+
+@page {
+  size: A5 landscape;
+  margin: 0mm !important;
+}
+
+.page-header-tagline {
+  font-size: 3.5mm;
+}
+
+.page-header-sub-type {
+  padding: 2px 4px;
+}
+
+/* Company Details */
+#invoice-sub-details>div {
+  padding-top: 4px;
+}
+
+
+.sub-details-class,
+#invoice-main-details {
+  min-height: 10mm;
+}
+
+/* Only applies border-top to receiver-signature when it comes after signature div */
+#signature+#receiver-signature {
+  border-top: 1px solid;
+  /* Adjust color and width as needed */
+}
+
+/* Hides the signature container if it's empty or if neither the signature nor receiver-signature has content */
+.signature-container:empty,
+.signature-container:not(:has(#signature:not(:empty), #receiver-signature:not(:empty))) {
+  display: none;
+}```
+
+## CSS: theme_five.css
