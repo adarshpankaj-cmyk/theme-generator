@@ -15,7 +15,7 @@
 theme_luxury:
   canvas: a4
   layout: luxury
-  default_opacity: 0.35
+  default_opacity: 0.6
   selectors:
     - ".items-table-header"
     - ".tax-table-header"
@@ -25,7 +25,7 @@ theme_luxury:
 theme_one:
   canvas: a4
   layout: modern_a
-  default_opacity: 0.35
+  default_opacity: 0.6
   selectors:
     - ".title-bill-ship-to"
     - ".items-table-total"
@@ -37,7 +37,7 @@ theme_one:
 theme_two:
   canvas: a4
   layout: modern_b
-  default_opacity: 0.35
+  default_opacity: 0.6
   selectors:
     - ".title-bill-ship-to"
     - ".items-table-header"
@@ -49,7 +49,7 @@ theme_two:
 theme_three:
   canvas: a4
   layout: adv_gst_full_row
-  default_opacity: 0.35
+  default_opacity: 0.6
   selectors:
     - ".items-table-header"
     - ".tax-table-header"
@@ -67,7 +67,7 @@ theme_three:
 theme_four:
   canvas: a5
   layout: a5_short
-  default_opacity: 0.35
+  default_opacity: 0.6
   selectors:
     - ".items-table-header"
     - ".items-table-total"
@@ -77,7 +77,7 @@ theme_four:
 theme_five:
   canvas: a4
   layout: adv_gst_tally_full_row
-  default_opacity: 0.35
+  default_opacity: 0.6
   selectors:
     - ".items-table-header"
     - ".tax-table-header"
@@ -95,7 +95,7 @@ theme_five:
 theme_six:
   canvas: a5
   layout: a5_full_row
-  default_opacity: 0.35
+  default_opacity: 0.6
   selectors:
     - ".items-table-header"
     - ".items-table-total"
@@ -113,7 +113,7 @@ theme_six:
 theme_seven:
   canvas: a4
   layout: stylish
-  default_opacity: 0.35
+  default_opacity: 0.6
   selectors:
     - "#invoice-details-meta"
     - ".items-table-total"
@@ -124,7 +124,7 @@ theme_seven:
 theme_eight:
   canvas: a4
   layout: billbook_full_row
-  default_opacity: 0.35
+  default_opacity: 0.6
   selectors:
     - ".items-table-header"
     - ".tax-table-header"

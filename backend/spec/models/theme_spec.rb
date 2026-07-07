@@ -46,10 +46,10 @@ RSpec.describe Theme, type: :model do
   end
 
   describe "defaults" do
-    it "starts as draft with 0.35 opacity and empty overrides" do
+    it "starts as draft with 0.6 opacity and empty overrides" do
       theme = described_class.create!(name: "Ganesh")
       expect(theme.status).to eq("draft")
-      expect(theme.artwork_opacity).to eq(0.35)
+      expect(theme.artwork_opacity).to eq(0.6)
       expect(theme.blend_overrides).to eq({})
     end
   end

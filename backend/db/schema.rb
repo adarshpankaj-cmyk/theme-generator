@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_07_06_145128) do
+ActiveRecord::Schema[7.2].define(version: 2026_07_07_111254) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -47,7 +47,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_06_145128) do
     t.string "slug", null: false
     t.text "prompt"
     t.string "status", default: "draft", null: false
-    t.decimal "artwork_opacity", precision: 4, scale: 2, default: "0.35", null: false
+    t.decimal "artwork_opacity", precision: 4, scale: 2, default: "0.6", null: false
     t.string "tint_hex"
     t.jsonb "blend_overrides", default: {}, null: false
     t.text "error_message"
