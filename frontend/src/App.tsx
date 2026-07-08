@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type JSX } from 'react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Loading03Icon } from '@hugeicons/core-free-icons';
 import { PromptBar } from '@/components/prompt-bar';
-import { PreviewGrid } from '@/components/preview-grid';
+import { CanvasCarousel } from '@/components/canvas-carousel';
 import { StatusBanner } from '@/components/status-banner';
-import { Toolbar } from '@/components/toolbar';
-import { BlendPanel } from '@/components/blend-panel';
 import { DownloadButton } from '@/components/download-button';
 import {
   useBlend,
@@ -13,24 +13,38 @@ import {
   useThemePreview,
 } from '@/hooks/use-themes';
 import { withStripPatch, withTemplatePatch } from '@/lib/blend';
-import type { BlendOverrides, CreateThemeInput, PreviewResponse, TemplateOverride } from '@/api/types';
+import { findTemplate } from '@/lib/template-registry';
+import type {
+  BlendOverrides,
+  Canvas,
+  CreateThemeInput,
+  PreviewResponse,
+  TemplateOverride,
+  TemplatePreview,
+} from '@/api/types';
 
 /** Debounce window for blend PATCHes while dragging sliders (SPEC §5). */
 const BLEND_DEBOUNCE_MS = 250;
 
-interface Selection {
-  readonly templateId: string;
-  readonly selector: string | null;
-}
+/** Panel headings, keyed by canvas. */
+const CANVAS_TITLES: Record<Canvas, string> = {
+  a4: 'A4 invoices',
+  a5: 'A5 invoices',
+};
 
 /**
- * Root of the single-screen app (SPEC §3). Owns the current theme id, the blend
- * selection, and the local blend-overrides working copy, and wires the whole
- * generate → preview → blend loop.
+ * Root of the single-screen app (SPEC §3). Owns the current theme id, the
+ * per-canvas carousel position and strip selection, and the local
+ * blend-overrides working copy, and wires the whole generate → preview → blend
+ * loop across the two canvas panels.
  */
 export function App(): JSX.Element {
   const [currentThemeId, setCurrentThemeId] = useState<number | null>(null);
-  const [selection, setSelection] = useState<Selection | null>(null);
+  const [activeIndex, setActiveIndex] = useState<Record<Canvas, number>>({ a4: 0, a5: 0 });
+  const [selectedStrips, setSelectedStrips] = useState<Record<Canvas, string | null>>({
+    a4: null,
+    a5: null,
+  });
   const [overrides, setOverrides] = useState<BlendOverrides>({});
   const [cssOverrides, setCssOverrides] = useState<Record<string, string>>({});
 
@@ -43,7 +57,7 @@ export function App(): JSX.Element {
   const isReady = theme?.status === 'ready';
   const previewQuery = useThemePreview(currentThemeId, isReady);
 
-  // Per-template debounce timers so edits to different cards don't cancel each other.
+  // Per-template debounce timers so edits to different templates don't cancel each other.
   const blendTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   useEffect(() => {
     const timers = blendTimers.current;
@@ -61,13 +75,16 @@ export function App(): JSX.Element {
     }
   }, [isReady, theme]);
 
-  // Reset transient blend state when switching themes.
+  // Reset transient carousel and blend state when switching themes.
   useEffect(() => {
-    setSelection(null);
+    setActiveIndex({ a4: 0, a5: 0 });
+    setSelectedStrips({ a4: null, a5: null });
     setCssOverrides({});
   }, [currentThemeId]);
 
-  // Strip-click messages from inside the preview iframes (SPEC §5).
+  // Strip-click messages from inside the preview iframes (SPEC §5). Only the
+  // visible template of a panel can be clicked, so the selection lands on the
+  // clicked template's canvas.
   useEffect(() => {
     const handler = (event: MessageEvent): void => {
       const data: unknown = event.data;
@@ -78,7 +95,10 @@ export function App(): JSX.Element {
       ) {
         const { templateId, selector } = data as { templateId?: unknown; selector?: unknown };
         if (typeof templateId === 'string' && typeof selector === 'string') {
-          setSelection({ templateId, selector });
+          const canvas = findTemplate(templateId)?.canvas;
+          if (canvas) {
+            setSelectedStrips((prev) => ({ ...prev, [canvas]: selector }));
+          }
         }
       }
     };
@@ -126,7 +146,44 @@ export function App(): JSX.Element {
     generate.mutate(input, { onSuccess: (created) => setCurrentThemeId(created.id) });
   };
 
-  const activeTemplateId = selection?.templateId ?? null;
+  const handleNavigate = useCallback((canvas: Canvas, index: number): void => {
+    setActiveIndex((prev) => ({ ...prev, [canvas]: index }));
+    setSelectedStrips((prev) => ({ ...prev, [canvas]: null }));
+  }, []);
+
+  const handleSelectStrip = useCallback((canvas: Canvas, selector: string): void => {
+    setSelectedStrips((prev) => ({ ...prev, [canvas]: selector }));
+  }, []);
+
+  const handleArtworkOpacity = useCallback(
+    (templateId: string, value: number): void =>
+      commit(templateId, withTemplatePatch(overrides, templateId, { artwork_opacity: value })),
+    [commit, overrides],
+  );
+
+  const handleTemplateTint = useCallback(
+    (templateId: string, hex: string): void =>
+      commit(templateId, withTemplatePatch(overrides, templateId, { tint_hex: hex })),
+    [commit, overrides],
+  );
+
+  const handleStripEnabled = useCallback(
+    (templateId: string, selector: string, enabled: boolean): void =>
+      commit(templateId, withStripPatch(overrides, templateId, selector, { enabled })),
+    [commit, overrides],
+  );
+
+  const handleStripAlpha = useCallback(
+    (templateId: string, selector: string, alpha: number): void =>
+      commit(templateId, withStripPatch(overrides, templateId, selector, { alpha })),
+    [commit, overrides],
+  );
+
+  const handleStripTint = useCallback(
+    (templateId: string, selector: string, hex: string): void =>
+      commit(templateId, withStripPatch(overrides, templateId, selector, { tint_hex: hex })),
+    [commit, overrides],
+  );
 
   const effectivePreview: PreviewResponse | undefined = useMemo(() => {
     const data = previewQuery.data;
@@ -141,6 +198,13 @@ export function App(): JSX.Element {
       ),
     };
   }, [previewQuery.data, cssOverrides]);
+
+  const templatesByCanvas = useMemo(() => {
+    const templates = effectivePreview?.templates ?? [];
+    const split: Record<Canvas, TemplatePreview[]> = { a4: [], a5: [] };
+    templates.forEach((template) => split[template.canvas].push(template));
+    return split;
+  }, [effectivePreview]);
 
   const status = theme?.status ?? (generate.isPending ? 'generating' : null);
   const isBusy = generate.isPending || status === 'generating';
@@ -188,59 +252,38 @@ export function App(): JSX.Element {
               <DownloadButton themeId={theme.id} slug={theme.slug} />
             </div>
 
-            <Toolbar
-              activeTemplateId={activeTemplateId}
-              overrides={overrides}
-              themeOpacity={theme?.artwork_opacity ?? null}
-              onArtworkOpacity={(templateId, value) =>
-                commit(templateId, withTemplatePatch(overrides, templateId, { artwork_opacity: value }))
-              }
-              onTemplateTint={(templateId, hex) =>
-                commit(templateId, withTemplatePatch(overrides, templateId, { tint_hex: hex }))
-              }
-            />
-
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-              <div className="min-w-0 flex-1">
-                <PreviewGrid
-                  preview={effectivePreview}
-                  isLoading={previewQuery.isLoading}
-                  selectedTemplateId={activeTemplateId}
-                  onSelectTemplate={(templateId) => setSelection({ templateId, selector: null })}
-                />
+            {previewQuery.isLoading ? (
+              <div className="flex items-center justify-center gap-2 rounded-xl border bg-card px-6 py-16 text-muted-foreground">
+                <HugeiconsIcon icon={Loading03Icon} className="size-5 animate-spin" />
+                <span className="text-sm">Loading previews…</span>
               </div>
+            ) : null}
 
-              {selection ? (
-                <BlendPanel
-                  templateId={selection.templateId}
-                  selectedSelector={selection.selector}
-                  overrides={overrides}
-                  themeOpacity={theme?.artwork_opacity ?? null}
-                  onSelectStrip={(selector) =>
-                    setSelection({ templateId: selection.templateId, selector })
-                  }
-                  onStripEnabled={(selector, enabled) =>
-                    commit(
-                      selection.templateId,
-                      withStripPatch(overrides, selection.templateId, selector, { enabled }),
-                    )
-                  }
-                  onStripAlpha={(selector, alpha) =>
-                    commit(
-                      selection.templateId,
-                      withStripPatch(overrides, selection.templateId, selector, { alpha }),
-                    )
-                  }
-                  onStripTint={(selector, hex) =>
-                    commit(
-                      selection.templateId,
-                      withStripPatch(overrides, selection.templateId, selector, { tint_hex: hex }),
-                    )
-                  }
-                  onClose={() => setSelection(null)}
-                />
-              ) : null}
-            </div>
+            {!previewQuery.isLoading && templatesByCanvas.a4.length + templatesByCanvas.a5.length === 0 ? (
+              <div className="rounded-xl border bg-card px-6 py-16 text-center text-sm text-muted-foreground">
+                No previews available for this theme.
+              </div>
+            ) : null}
+
+            {(['a4', 'a5'] as const).map((canvas) => (
+              <CanvasCarousel
+                key={canvas}
+                title={CANVAS_TITLES[canvas]}
+                canvas={canvas}
+                templates={templatesByCanvas[canvas]}
+                activeIndex={activeIndex[canvas]}
+                selectedSelector={selectedStrips[canvas]}
+                overrides={overrides}
+                themeOpacity={theme?.artwork_opacity ?? null}
+                onNavigate={handleNavigate}
+                onSelectStrip={handleSelectStrip}
+                onArtworkOpacity={handleArtworkOpacity}
+                onTemplateTint={handleTemplateTint}
+                onStripEnabled={handleStripEnabled}
+                onStripAlpha={handleStripAlpha}
+                onStripTint={handleStripTint}
+              />
+            ))}
           </>
         ) : null}
       </main>

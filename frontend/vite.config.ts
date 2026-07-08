@@ -5,6 +5,8 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Honor a harness/CI-assigned port (e.g. Claude preview); default otherwise.
+  server: process.env.PORT ? { port: Number(process.env.PORT), strictPort: true } : undefined,
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
