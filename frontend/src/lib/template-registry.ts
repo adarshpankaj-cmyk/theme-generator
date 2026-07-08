@@ -38,7 +38,7 @@ export const TEMPLATE_REGISTRY: readonly TemplateDefinition[] = [
     id: 'theme_luxury',
     canvas: 'a4',
     layout: 'luxury',
-    defaultOpacity: 0.35,
+    defaultOpacity: 0.6,
     selectors: [
       '.items-table-header',
       '.tax-table-header',
@@ -50,7 +50,7 @@ export const TEMPLATE_REGISTRY: readonly TemplateDefinition[] = [
     id: 'theme_one',
     canvas: 'a4',
     layout: 'modern_a',
-    defaultOpacity: 0.35,
+    defaultOpacity: 0.6,
     selectors: [
       '.title-bill-ship-to',
       '.items-table-total',
@@ -64,7 +64,7 @@ export const TEMPLATE_REGISTRY: readonly TemplateDefinition[] = [
     id: 'theme_two',
     canvas: 'a4',
     layout: 'modern_b',
-    defaultOpacity: 0.35,
+    defaultOpacity: 0.6,
     selectors: [
       '.title-bill-ship-to',
       '.items-table-header',
@@ -78,14 +78,14 @@ export const TEMPLATE_REGISTRY: readonly TemplateDefinition[] = [
     id: 'theme_three',
     canvas: 'a4',
     layout: 'adv_gst_full_row',
-    defaultOpacity: 0.35,
+    defaultOpacity: 0.6,
     selectors: ADVANCED_GST_SELECTORS,
   },
   {
     id: 'theme_four',
     canvas: 'a5',
     layout: 'a5_short',
-    defaultOpacity: 0.35,
+    defaultOpacity: 0.6,
     selectors: [
       '.items-table-header',
       '.items-table-total',
@@ -97,14 +97,14 @@ export const TEMPLATE_REGISTRY: readonly TemplateDefinition[] = [
     id: 'theme_five',
     canvas: 'a4',
     layout: 'adv_gst_tally_full_row',
-    defaultOpacity: 0.35,
+    defaultOpacity: 0.6,
     selectors: ADVANCED_GST_SELECTORS,
   },
   {
     id: 'theme_six',
     canvas: 'a5',
     layout: 'a5_full_row',
-    defaultOpacity: 0.35,
+    defaultOpacity: 0.6,
     selectors: [
       '.items-table-header',
       '.items-table-total',
@@ -124,7 +124,7 @@ export const TEMPLATE_REGISTRY: readonly TemplateDefinition[] = [
     id: 'theme_seven',
     canvas: 'a4',
     layout: 'stylish',
-    defaultOpacity: 0.35,
+    defaultOpacity: 0.6,
     selectors: [
       '#invoice-details-meta',
       '.items-table-total',
@@ -137,7 +137,7 @@ export const TEMPLATE_REGISTRY: readonly TemplateDefinition[] = [
     id: 'theme_eight',
     canvas: 'a4',
     layout: 'billbook_full_row',
-    defaultOpacity: 0.35,
+    defaultOpacity: 0.6,
     selectors: ADVANCED_GST_SELECTORS,
   },
 ];

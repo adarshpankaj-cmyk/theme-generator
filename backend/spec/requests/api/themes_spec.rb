@@ -3,11 +3,13 @@
 require "rails_helper"
 
 RSpec.describe "Api::Themes", type: :request do
-  def attach_reference_images(theme)
-    theme.a4_image.attach(io: File.open(ReferenceTheme::ROOT.join("images", "a4.jpeg")),
-                          filename: "a4.jpeg", content_type: "image/jpeg")
-    theme.a5_image.attach(io: File.open(ReferenceTheme::ROOT.join("images", "a5.jpeg")),
-                          filename: "a5.jpeg", content_type: "image/jpeg")
+  def attach_reference_images(theme, variants: 1)
+    variants.times do |i|
+      theme.a4_images.attach(io: File.open(ReferenceTheme::ROOT.join("images", "a4.jpeg")),
+                             filename: "a4_#{i}.jpeg", content_type: "image/jpeg")
+      theme.a5_images.attach(io: File.open(ReferenceTheme::ROOT.join("images", "a5.jpeg")),
+                             filename: "a5_#{i}.jpeg", content_type: "image/jpeg")
+    end
   end
 
   describe "POST /api/themes" do
@@ -114,8 +116,34 @@ RSpec.describe "Api::Themes", type: :request do
       templates = response.parsed_body["templates"]
       expect(templates.size).to eq(TemplateRegistry.ids.size)
       first = templates.first
-      expect(first).to include("template_id", "canvas", "css", "image_url", "base_invoice_html")
+      expect(first).to include("template_id", "canvas", "css", "image_url", "image_urls", "base_invoice_html")
       expect(first["base_invoice_html"]).to include("items-table-header")
+    end
+  end
+
+  describe "PATCH /api/themes/:id/select-variant" do
+    let(:theme) { Theme.create!(name: "Ganesh", slug: "ganesh", tint_hex: "#AAAAAA") }
+
+    before do
+      attach_reference_images(theme, variants: 2)
+      theme.update!(variant_tints: %w[#111111 #222222])
+    end
+
+    it "sets the selected variant + tint and returns per-template css" do
+      patch "/api/themes/#{theme.id}/select-variant", params: { variant: 1 }
+
+      expect(response).to have_http_status(:ok)
+      body = response.parsed_body
+      expect(body["selected_variant"]).to eq(1)
+      expect(body["tint_hex"]).to eq("#222222")
+      expect(body["templates"].size).to eq(TemplateRegistry.ids.size)
+      expect(body["templates"].first).to include("template_id", "css")
+      expect(theme.reload.selected_variant).to eq(1)
+    end
+
+    it "returns 422 for an out-of-range variant" do
+      patch "/api/themes/#{theme.id}/select-variant", params: { variant: 9 }
+      expect(response).to have_http_status(:unprocessable_entity)
     end
   end
 

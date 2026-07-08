@@ -1,7 +1,7 @@
 import type { BlendOverrides, StripSettings, TemplateOverride } from '@/api/types';
 import { findTemplate } from '@/lib/template-registry';
 
-const FALLBACK_OPACITY = 0.35;
+const FALLBACK_OPACITY = 0.6;
 
 /** The override entry for a template, or an empty object. */
 export function templateOverride(overrides: BlendOverrides, templateId: string): TemplateOverride {

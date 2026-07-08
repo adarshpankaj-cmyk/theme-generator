@@ -24,18 +24,28 @@ module Api
         status: theme.status,
         tint_hex: theme.tint_hex,
         artwork_opacity: theme.artwork_opacity&.to_f,
-        a4_image_url: image_url(theme.a4_image),
-        a5_image_url: image_url(theme.a5_image),
+        selected_variant: theme.selected_variant,
+        a4_image_urls: image_urls(theme.a4_variants),
+        a5_image_urls: image_urls(theme.a5_variants),
+        a4_image_url: attachment_url(theme.selected_a4_image),
+        a5_image_url: attachment_url(theme.selected_a5_image),
         blend_overrides: theme.blend_overrides,
         error_message: theme.error_message,
         templates: TemplateRegistry.ids
       }
     end
 
-    def image_url(attachment)
-      return nil unless attachment.attached?
+    # @param attachment [ActiveStorage::Attachment, nil]
+    def attachment_url(attachment)
+      return nil if attachment.nil?
 
-      rails_blob_url(attachment)
+      rails_blob_url(attachment.blob)
+    end
+
+    # @param attachments [Enumerable<ActiveStorage::Attachment>]
+    # @return [Array<String>] a blob URL per attachment, in the given order.
+    def image_urls(attachments)
+      attachments.map { |attachment| rails_blob_url(attachment.blob) }
     end
 
     def render_not_found(error)

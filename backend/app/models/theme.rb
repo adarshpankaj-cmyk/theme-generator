@@ -9,9 +9,10 @@ class Theme < ApplicationRecord
   STATUSES = %w[draft generating ready published failed].freeze
   enum :status, STATUSES.index_by(&:itself), default: "draft", validate: true
 
-  # The two generated artwork images (portrait A4, landscape A5).
-  has_one_attached :a4_image
-  has_one_attached :a5_image
+  # The generated artwork candidates: N portrait A4 + N landscape A5 images.
+  # Variant i is the pair (a4_images[i], a5_images[i]); selected_variant picks one.
+  has_many_attached :a4_images
+  has_many_attached :a5_images
 
   validates :name, presence: true
   validates :slug, presence: true, uniqueness: true
@@ -19,6 +20,34 @@ class Theme < ApplicationRecord
             numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 1 }
 
   before_validation :assign_slug, on: :create
+
+  # Artwork variants in stable order (attachment id ascending == insertion order),
+  # so index == variant index regardless of association default ordering.
+  # @return [Array<ActiveStorage::Attachment>]
+  def a4_variants
+    a4_images.attachments.sort_by(&:id)
+  end
+
+  # @return [Array<ActiveStorage::Attachment>]
+  def a5_variants
+    a5_images.attachments.sort_by(&:id)
+  end
+
+  # The active A4 / A5 artwork attachment for the selected variant (nil until
+  # generated). @return [ActiveStorage::Attachment, nil]
+  def selected_a4_image
+    a4_variants[selected_variant.to_i]
+  end
+
+  # @return [ActiveStorage::Attachment, nil]
+  def selected_a5_image
+    a5_variants[selected_variant.to_i]
+  end
+
+  # @return [Integer] how many artwork variants have been generated (A4 count).
+  def variant_count
+    a4_variants.size
+  end
 
   # Effective per-template overrides ({} when none). Keyed by template id; see §4.1.
   # @param template_id [String]

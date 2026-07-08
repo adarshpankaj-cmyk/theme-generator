@@ -44,9 +44,9 @@ RSpec.describe TemplateRegistry do
       end
     end
 
-    it "uses the reference opacity default (0.35) for every template" do
+    it "uses the configured opacity default (0.6) for every template" do
       reference_ids.each do |id|
-        expect(described_class.find(id).default_opacity).to eq(0.35)
+        expect(described_class.find(id).default_opacity).to eq(0.6)
       end
     end
   end

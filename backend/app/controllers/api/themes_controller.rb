@@ -35,6 +35,30 @@ module Api
       render json: { template_id: params[:template_id], css: css }
     end
 
+    # PATCH /api/themes/:id/select-variant
+    # Pick which generated artwork variant is active. Updates the theme-level tint
+    # to that variant's cached tint and returns freshly-assembled CSS for every
+    # template so the frontend can re-tint all previews in one round-trip.
+    def select_variant
+      index = params.require(:variant).to_i
+      count = @theme.variant_count
+      if count.zero? || !index.between?(0, count - 1)
+        return render json: { error: ["variant out of range"] }, status: :unprocessable_entity
+      end
+
+      tint = Array(@theme.variant_tints)[index] || @theme.tint_hex
+      @theme.update!(selected_variant: index, tint_hex: tint)
+
+      templates = TemplateRegistry.ids.map do |template_id|
+        { template_id: template_id, css: CssAssemblerService.new(@theme, template_id).call }
+      end
+      render json: {
+        selected_variant: @theme.selected_variant,
+        tint_hex: @theme.tint_hex,
+        templates: templates
+      }
+    end
+
     # GET /api/themes/:id/download
     def download
       zip = Tempfile.new([@theme.slug, ".zip"], binmode: true)

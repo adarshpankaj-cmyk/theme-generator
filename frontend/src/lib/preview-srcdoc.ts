@@ -21,6 +21,14 @@ import type { TemplatePreview } from '@/api/types';
  *
  * `selectors` is optional: when provided, a click-capture script is injected so
  * strips postMessage their selector to the parent (the blend flow, SPEC §5).
+ *
+ * The `<body>` carries `invoice-shell-ready`: the invoice's own CSS hides an
+ * unpopulated shell behind an opaque grey `body:not(.invoice-shell-ready)::before`
+ * overlay (the live app clears it via JS once the renderer paints). Our previews
+ * are pre-populated (captured markup), so the shell is ready from first paint —
+ * without this class the guard's `::before` collides with (and, being more
+ * specific, overrides) the overlay artwork `body::before`, replacing the artwork
+ * with a grey sheet on top of the invoice that the opacity slider then fades.
  */
 export function buildPreviewSrcDoc(
   preview: Pick<TemplatePreview, 'template_id' | 'css' | 'base_invoice_html' | 'image_url'>,
@@ -33,7 +41,7 @@ export function buildPreviewSrcDoc(
   return [
     '<!doctype html><html><head><meta charset="utf-8">',
     '<style>html,body{margin:0;padding:0}</style>',
-    '</head><body>',
+    '</head><body class="invoice-shell-ready">',
     preview.base_invoice_html,
     `<style>${overlayCss}</style>`,
     script,

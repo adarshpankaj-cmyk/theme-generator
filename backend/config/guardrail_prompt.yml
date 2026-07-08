@@ -2,15 +2,19 @@
 # "invoice-safe" template before sending it to the image model. Editable config;
 # see backend/SPEC.md §6.1. Substitutions: {{USER_PROMPT}}, {{ORIENTATION}}.
 guardrail: |
-  Create a decorative background artwork for a business invoice on the theme: "{{USER_PROMPT}}".
+  Create a refined background watermark illustration for a business invoice, on the theme: "{{USER_PROMPT}}".
 
-  HARD RULES (readability):
-  - Keep the CENTER and the full VERTICAL MIDDLE COLUMN of the image light, calm, near-empty, and low-contrast — invoice text sits there.
-  - Push all detail, color, and motifs to the EDGES and CORNERS only.
-  - NO text, letters, numbers, or logos anywhere in the image.
-  - Soft / pastel / muted palette. Light textures. One single strong theme idea.
-  - Spacious composition. No heavy gradients, no loud colors, no clutter.
-  - Must remain legible when placed at 30–40% opacity behind black text.
+  SUBJECT (this is the point — do not reduce it to an abstract pattern):
+  - If the theme names a subject — a deity, figure, animal, object, or icon (e.g. Ganesh, a diya, a peacock) — depict THAT subject as the clear, recognizable CENTRAL hero of the image, rendered softly and elegantly. The center region is usually a text heavy region so make sure its that soft.
+  - Only if the theme is purely an abstract mood, use a single cohesive ornamental motif instead.
+  - Exactly one strong idea. Absolutely NO text, letters, numbers, or written characters anywhere.
+
+  READABILITY (kept legible by PALENESS, not empty space):
+  - Render the whole image pale, soft, and low-contrast — like a faint watermark on cream/off-white paper (roughly 20–35% color strength).
+  - No dark, dense, or high-contrast areas, especially through the vertical middle where invoice text sits; keep the subject light enough that black text stays fully legible over it.
+  - Calm, generous margins.
+
+  STYLE: tasteful, premium Indian-invoice aesthetic; centered composition; muted, harmonious colors true to the theme; a soft brushed halo behind the subject is welcome.
 
   ORIENTATION: {{ORIENTATION}}.
 

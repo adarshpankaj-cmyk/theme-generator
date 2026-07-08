@@ -26,23 +26,36 @@ RSpec.describe ImageGenerationService do
   let(:reference_bytes) { File.binread(ReferenceTheme::ROOT.join("images", "a4.jpeg")) }
 
   def dimensions(attachment)
-    image = Vips::Image.new_from_buffer(attachment.download, "")
+    image = Vips::Image.new_from_buffer(attachment.blob.download, "")
     [image.width, image.height]
   end
 
   describe "on success" do
-    before { described_class.new(theme, engine: FakeEngine.new(reference_bytes)).call }
-
-    it "attaches both images resized to the exact canvas dimensions" do
-      expect(theme.a4_image).to be_attached
-      expect(theme.a5_image).to be_attached
-      expect(dimensions(theme.a4_image)).to eq([600, 848])
-      expect(dimensions(theme.a5_image)).to eq([1024, 724])
+    around do |example|
+      # Two variants keeps the suite fast while still exercising the multi-variant path.
+      previous = ENV["IMAGE_VARIANT_COUNT"]
+      ENV["IMAGE_VARIANT_COUNT"] = "2"
+      example.run
+    ensure
+      ENV["IMAGE_VARIANT_COUNT"] = previous
     end
 
-    it "computes the tint and marks the theme ready" do
-      expect(theme.reload.status).to eq("ready")
-      expect(theme.tint_hex).to match(/\A#[0-9A-F]{6}\z/)
+    before { described_class.new(theme, engine: FakeEngine.new(reference_bytes)).call }
+
+    it "attaches N variants per canvas, each resized to exact canvas dimensions" do
+      expect(theme.a4_variants.size).to eq(2)
+      expect(theme.a5_variants.size).to eq(2)
+      expect(dimensions(theme.a4_variants.first)).to eq([600, 848])
+      expect(dimensions(theme.a5_variants.first)).to eq([1024, 724])
+    end
+
+    it "caches a tint per variant, selects variant 0, and marks the theme ready" do
+      theme.reload
+      expect(theme.status).to eq("ready")
+      expect(theme.selected_variant).to eq(0)
+      expect(theme.variant_tints.size).to eq(2)
+      expect(theme.variant_tints).to all(match(/\A#[0-9A-F]{6}\z/))
+      expect(theme.tint_hex).to eq(theme.variant_tints.first)
       expect(theme.error_message).to be_nil
     end
   end

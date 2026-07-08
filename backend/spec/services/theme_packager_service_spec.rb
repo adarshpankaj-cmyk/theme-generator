@@ -5,10 +5,10 @@ require "rails_helper"
 RSpec.describe ThemePackagerService do
   let(:theme) do
     Theme.create!(name: "Ganesh Ji", slug: "ganesh", tint_hex: "#FEF5E9", artwork_opacity: 0.35).tap do |t|
-      t.a4_image.attach(io: File.open(ReferenceTheme::ROOT.join("images", "a4.jpeg")),
-                        filename: "a4.jpeg", content_type: "image/jpeg")
-      t.a5_image.attach(io: File.open(ReferenceTheme::ROOT.join("images", "a5.jpeg")),
-                        filename: "a5.jpeg", content_type: "image/jpeg")
+      t.a4_images.attach(io: File.open(ReferenceTheme::ROOT.join("images", "a4.jpeg")),
+                         filename: "a4_0.jpeg", content_type: "image/jpeg")
+      t.a5_images.attach(io: File.open(ReferenceTheme::ROOT.join("images", "a5.jpeg")),
+                         filename: "a5_0.jpeg", content_type: "image/jpeg")
     end
   end
 
@@ -69,6 +69,19 @@ RSpec.describe ThemePackagerService do
         reference = CssAssemblerService.normalize(File.read(ReferenceTheme.css_path(template_id)))
         expect(built).to eq(reference), "mismatch in css/#{template_id}/latest.css"
       end
+    end
+  end
+
+  describe "selected variant" do
+    it "packages the selected variant's artwork, not variant 0" do
+      # Attach a distinct second A4 variant (reuse the a5 bytes as stand-in) and select it.
+      variant1 = ReferenceTheme::ROOT.join("images", "a5.jpeg")
+      theme.a4_images.attach(io: File.open(variant1), filename: "a4_1.jpeg", content_type: "image/jpeg")
+      theme.update!(selected_variant: 1)
+
+      root = described_class.new(theme).build(@tmp)
+      built = File.binread(File.join(root, "images", "a4.jpeg"))
+      expect(built).to eq(File.binread(variant1))
     end
   end
 
