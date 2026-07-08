@@ -15,7 +15,8 @@ module Api
           template_id: template.id,
           canvas: template.canvas,
           css: CssAssemblerService.new(@theme, template.id).call,
-          image_url: image_url(image_for(template.canvas)),
+          image_url: attachment_url(selected_for(template.canvas)),
+          image_urls: image_urls(variants_for(template.canvas)),
           base_invoice_html: InvoicePreview.html(template.id, template.canvas)
         }
       end
@@ -25,8 +26,14 @@ module Api
 
     private
 
-    def image_for(canvas)
-      canvas == "a5" ? @theme.a5_image : @theme.a4_image
+    # All artwork variants for a canvas, in variant order.
+    def variants_for(canvas)
+      canvas == "a5" ? @theme.a5_variants : @theme.a4_variants
+    end
+
+    # The selected-variant attachment for a canvas (the default artwork).
+    def selected_for(canvas)
+      canvas == "a5" ? @theme.selected_a5_image : @theme.selected_a4_image
     end
   end
 end

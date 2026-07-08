@@ -7,6 +7,8 @@ import type {
   PreviewResponse,
   PublishResponse,
   RegenerateInput,
+  SelectVariantInput,
+  SelectVariantResponse,
   Theme,
 } from './types';
 
@@ -21,6 +23,7 @@ export interface ThemesApi {
   regenerate(id: number, input?: RegenerateInput): Promise<GenerationAck>;
   preview(id: number, signal?: AbortSignal): Promise<PreviewResponse>;
   blend(id: number, input: BlendInput): Promise<BlendResponse>;
+  selectVariant(id: number, input: SelectVariantInput): Promise<SelectVariantResponse>;
   publish(id: number): Promise<PublishResponse>;
   /** Direct URL for the theme zip; hand to an anchor to trigger a download. */
   downloadUrl(id: number): string;
@@ -52,6 +55,13 @@ export const themesApi: ThemesApi = {
 
   blend(id, input) {
     return request<BlendResponse>(`/themes/${id}/blend`, { method: 'PATCH', body: input });
+  },
+
+  selectVariant(id, input) {
+    return request<SelectVariantResponse>(`/themes/${id}/select-variant`, {
+      method: 'PATCH',
+      body: input,
+    });
   },
 
   publish(id) {

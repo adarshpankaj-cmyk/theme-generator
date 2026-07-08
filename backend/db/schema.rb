@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_07_07_111254) do
+ActiveRecord::Schema[7.2].define(version: 2026_07_08_091525) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -53,6 +53,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_07_111254) do
     t.text "error_message"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "selected_variant", default: 0, null: false
+    t.jsonb "variant_tints", default: [], null: false
     t.index ["slug"], name: "index_themes_on_slug", unique: true
   end
 

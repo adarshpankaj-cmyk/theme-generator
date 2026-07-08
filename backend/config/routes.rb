@@ -9,6 +9,7 @@ Rails.application.routes.draw do
         post :generate
         post :regenerate
         patch :blend
+        patch :select_variant, path: "select-variant"
         get :download
         get :preview, to: "previews#preview"
         post :publish, to: "publish#create"

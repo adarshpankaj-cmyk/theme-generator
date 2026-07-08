@@ -49,6 +49,12 @@ export interface Theme {
   readonly status: ThemeStatus;
   readonly tint_hex: string | null;
   readonly artwork_opacity: number | null;
+  /** Which artwork variant is active (index into the *_image_urls arrays). */
+  readonly selected_variant: number;
+  /** All generated A4 / A5 artwork variants, in variant order. */
+  readonly a4_image_urls: readonly string[];
+  readonly a5_image_urls: readonly string[];
+  /** Convenience: the selected variant's URLs (a4_image_urls[selected_variant]). */
   readonly a4_image_url: string | null;
   readonly a5_image_url: string | null;
   readonly blend_overrides: BlendOverrides;
@@ -61,7 +67,10 @@ export interface TemplatePreview {
   readonly template_id: string;
   readonly canvas: Canvas;
   readonly css: string;
+  /** Artwork for the selected variant (default). */
   readonly image_url: string | null;
+  /** Every variant's artwork for this canvas, so the UI can swap without a refetch. */
+  readonly image_urls: readonly string[];
   readonly base_invoice_html: string;
 }
 
@@ -80,6 +89,16 @@ export interface GenerationAck {
 export interface BlendResponse {
   readonly template_id: string;
   readonly css: string;
+}
+
+/**
+ * Result of choosing an artwork variant (PATCH /themes/:id/select-variant).
+ * Carries the new theme-level tint and freshly-assembled CSS for every template.
+ */
+export interface SelectVariantResponse {
+  readonly selected_variant: number;
+  readonly tint_hex: string | null;
+  readonly templates: readonly BlendResponse[];
 }
 
 /** Publish result (POST /themes/:id/publish). */
@@ -104,4 +123,9 @@ export interface BlendInput {
   readonly artwork_opacity?: number;
   readonly tint_hex?: string;
   readonly strips?: Record<string, StripSettings>;
+}
+
+/** Select-variant patch body. */
+export interface SelectVariantInput {
+  readonly variant: number;
 }

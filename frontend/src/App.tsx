@@ -5,10 +5,12 @@ import { StatusBanner } from '@/components/status-banner';
 import { Toolbar } from '@/components/toolbar';
 import { BlendPanel } from '@/components/blend-panel';
 import { DownloadButton } from '@/components/download-button';
+import { VariantStrip } from '@/components/variant-strip';
 import {
   useBlend,
   useGenerateTheme,
   useRegenerateTheme,
+  useSelectVariant,
   useTheme,
   useThemePreview,
 } from '@/hooks/use-themes';
@@ -33,12 +35,14 @@ export function App(): JSX.Element {
   const [selection, setSelection] = useState<Selection | null>(null);
   const [overrides, setOverrides] = useState<BlendOverrides>({});
   const [cssOverrides, setCssOverrides] = useState<Record<string, string>>({});
+  const [selectedVariant, setSelectedVariant] = useState<number>(0);
 
   const generate = useGenerateTheme();
   const themeQuery = useTheme(currentThemeId);
   const theme = themeQuery.data;
   const regenerate = useRegenerateTheme(currentThemeId ?? 0);
   const blend = useBlend(currentThemeId ?? 0);
+  const selectVariant = useSelectVariant(currentThemeId ?? 0);
 
   const isReady = theme?.status === 'ready';
   const previewQuery = useThemePreview(currentThemeId, isReady);
@@ -65,6 +69,7 @@ export function App(): JSX.Element {
   useEffect(() => {
     setSelection(null);
     setCssOverrides({});
+    setSelectedVariant(0);
   }, [currentThemeId]);
 
   // Strip-click messages from inside the preview iframes (SPEC §5).
@@ -128,19 +133,51 @@ export function App(): JSX.Element {
 
   const activeTemplateId = selection?.templateId ?? null;
 
+  // Merge server previews with (a) the selected artwork variant's image — swapped
+  // client-side for an instant compare — and (b) any locally-patched CSS from
+  // debounced blends / variant selection.
   const effectivePreview: PreviewResponse | undefined = useMemo(() => {
     const data = previewQuery.data;
-    if (!data || Object.keys(cssOverrides).length === 0) {
+    if (!data) {
       return data;
     }
     return {
-      templates: data.templates.map((template) =>
-        cssOverrides[template.template_id]
-          ? { ...template, css: cssOverrides[template.template_id] }
-          : template,
-      ),
+      templates: data.templates.map((template) => {
+        const variantUrl = template.image_urls[selectedVariant];
+        const css = cssOverrides[template.template_id];
+        if (variantUrl === undefined && css === undefined) {
+          return template;
+        }
+        return {
+          ...template,
+          ...(css === undefined ? {} : { css }),
+          ...(variantUrl === undefined ? {} : { image_url: variantUrl }),
+        };
+      }),
     };
-  }, [previewQuery.data, cssOverrides]);
+  }, [previewQuery.data, cssOverrides, selectedVariant]);
+
+  // Pick an artwork variant: swap the image instantly, then persist the choice
+  // and apply the recomputed per-template CSS (new tint) via the override path.
+  const handleSelectVariant = useCallback(
+    (index: number): void => {
+      setSelectedVariant(index);
+      selectVariant.mutate(
+        { variant: index },
+        {
+          onSuccess: (result) =>
+            setCssOverrides((prev) => {
+              const next = { ...prev };
+              for (const patched of result.templates) {
+                next[patched.template_id] = patched.css;
+              }
+              return next;
+            }),
+        },
+      );
+    },
+    [selectVariant],
+  );
 
   const status = theme?.status ?? (generate.isPending ? 'generating' : null);
   const isBusy = generate.isPending || status === 'generating';
@@ -187,6 +224,14 @@ export function App(): JSX.Element {
               </div>
               <DownloadButton themeId={theme.id} slug={theme.slug} />
             </div>
+
+            {theme.a4_image_urls.length > 1 ? (
+              <VariantStrip
+                variants={theme.a4_image_urls}
+                selected={selectedVariant}
+                onSelect={handleSelectVariant}
+              />
+            ) : null}
 
             <Toolbar
               activeTemplateId={activeTemplateId}

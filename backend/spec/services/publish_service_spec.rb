@@ -5,10 +5,10 @@ require "rails_helper"
 RSpec.describe PublishService do
   let(:theme) do
     Theme.create!(name: "Ganesh Ji", slug: "ganesh", tint_hex: "#FEF5E9", status: :ready).tap do |t|
-      t.a4_image.attach(io: File.open(ReferenceTheme::ROOT.join("images", "a4.jpeg")),
-                        filename: "a4.jpeg", content_type: "image/jpeg")
-      t.a5_image.attach(io: File.open(ReferenceTheme::ROOT.join("images", "a5.jpeg")),
-                        filename: "a5.jpeg", content_type: "image/jpeg")
+      t.a4_images.attach(io: File.open(ReferenceTheme::ROOT.join("images", "a4.jpeg")),
+                         filename: "a4_0.jpeg", content_type: "image/jpeg")
+      t.a5_images.attach(io: File.open(ReferenceTheme::ROOT.join("images", "a5.jpeg")),
+                         filename: "a5_0.jpeg", content_type: "image/jpeg")
     end
   end
 

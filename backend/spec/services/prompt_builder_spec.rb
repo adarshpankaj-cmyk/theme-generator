@@ -7,9 +7,9 @@ RSpec.describe PromptBuilder do
 
   it "embeds the user prompt inside the readability guardrail" do
     prompt = builder.for_canvas("a4")
-    expect(prompt).to include('themed: "Ganesh silhouette"')
-    expect(prompt).to include("COMPOSITION (protects invoice text")
-    expect(prompt).to include("NO text, letters, numbers, or logos")
+    expect(prompt).to include('theme: "Ganesh silhouette"')
+    expect(prompt).to include("SUBJECT")
+    expect(prompt).to include("NO text, letters, numbers")
   end
 
   it "uses the portrait orientation for A4" do

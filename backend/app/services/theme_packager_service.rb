@@ -13,8 +13,8 @@ require "tmpdir"
 #
 # See backend/SPEC.md §7.
 class ThemePackagerService
-  # canvas => ActiveStorage attachment name.
-  IMAGE_ATTACHMENTS = { "a4" => :a4_image, "a5" => :a5_image }.freeze
+  # canvas => reader returning the selected-variant attachment.
+  SELECTED_IMAGES = { "a4" => :selected_a4_image, "a5" => :selected_a5_image }.freeze
 
   def initialize(theme)
     @theme = theme
@@ -49,15 +49,15 @@ class ThemePackagerService
     File.write(File.join(root, ".overlay_name"), @theme.slug)
   end
 
-  # Copy each attached artwork image into images/<canvas>.jpeg.
+  # Copy the selected variant's artwork into images/<canvas>.jpeg.
   def write_images(root)
     images_dir = File.join(root, "images")
     FileUtils.mkdir_p(images_dir)
-    IMAGE_ATTACHMENTS.each do |canvas, attachment_name|
-      attachment = @theme.public_send(attachment_name)
-      next unless attachment.attached?
+    SELECTED_IMAGES.each do |canvas, reader|
+      attachment = @theme.public_send(reader)
+      next if attachment.nil?
 
-      File.binwrite(File.join(images_dir, "#{canvas}.jpeg"), attachment.download)
+      File.binwrite(File.join(images_dir, "#{canvas}.jpeg"), attachment.blob.download)
     end
   end
 

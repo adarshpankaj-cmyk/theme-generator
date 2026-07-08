@@ -14,6 +14,8 @@ import type {
   PreviewResponse,
   PublishResponse,
   RegenerateInput,
+  SelectVariantInput,
+  SelectVariantResponse,
   Theme,
 } from '@/api/types';
 import { ThemeStatusValue } from '@/api/types';
@@ -96,6 +98,27 @@ export function useRegenerateTheme(id: number): UseMutationResult<GenerationAck,
 export function useBlend(id: number): UseMutationResult<BlendResponse, Error, BlendInput> {
   return useMutation({
     mutationFn: (input: BlendInput) => themesApi.blend(id, input),
+  });
+}
+
+/**
+ * Persist which artwork variant is active. Returns the new theme-level tint plus
+ * recomputed CSS for every template (the caller merges that into its local CSS
+ * overrides). Syncs `selected_variant`/`tint_hex` into the cached theme.
+ */
+export function useSelectVariant(
+  id: number,
+): UseMutationResult<SelectVariantResponse, Error, SelectVariantInput> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: SelectVariantInput) => themesApi.selectVariant(id, input),
+    onSuccess: (result) => {
+      queryClient.setQueryData<Theme | undefined>(themeKeys.detail(id), (prev) =>
+        prev
+          ? { ...prev, selected_variant: result.selected_variant, tint_hex: result.tint_hex }
+          : prev,
+      );
+    },
   });
 }
 
