@@ -1,0 +1,299 @@
+<!-- Rendered theme_three invoice (post-JS DOM captured from the live app).
+     Boxed A4 Tax-Invoice layout (GST, with HSN/SAC tax table): item table +
+     HSN/SAC table + misc details (bank / UPI / TNC / signature). Base64 image
+     blobs (logo / UPI QR / UPI apps / page branding) trimmed for size; not needed
+     for the theme overlay preview. Real sample data retained. -->
+<div class="page-header">
+      <div class="page-header-type">
+        <div class="page-header-type-value">TAX INVOICE</div>
+        <div class="page-header-sub-type">Original for Recipient</div>
+      </div>
+      <div class="page-header-tagline-container">
+        
+        <div class="page-header-tagline-value">Mera desh, Meri dukaan</div>
+      </div>
+    </div>
+<div id="main-content">
+      <table>
+        <thead id="main-header">
+          <tr>
+            <td>
+              <div class="page-header-space"></div>
+            </td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="main-container">
+              <!-- Theme Content -->
+              <div class="page">
+                <!-- Company details -->
+                <div id="company-details">
+                  <div id="company-details-meta" class="business_details" data-subsection-id="0">
+                    <div id="company-logo-container">
+                      <img id="company-logo" src="" alt="company logo">
+                    </div>
+                    <div id="company-details-content">
+                      <div id="company-name" style="color: #000000;">Pankaj Industries</div>
+                      <div id="company-address">A-901 SJR Brooklyn, Bangalore, Maharashtra, 560037 </div>
+                      
+                      <div id="company-contact-details">
+                        <div id="company-gst-number-content">
+                          <span>GSTIN:</span>&nbsp;
+                          <span id="company-gst-number">27AAACM3025E1ZY</span>
+                        </div>
+                        <div id="company-mobile-number-content">
+                          <span>Mobile:</span>&nbsp;
+                          <span id="company-mobile-number">6303850191</span>
+                        </div>
+                      </div>
+                      <div id="company-pan-number-content">
+                        <span>PAN Number:</span>&nbsp;
+                        <span id="company-pan-number">GYKPP5833C</span>
+                      </div>
+                      <div id="company-email-content">
+                        <span>Email:</span>&nbsp;
+                        <span id="company-email">adarsh.pankaj@flobiz.in</span>
+                      </div>
+                      <div id="company-addn-fields-container"><div class="business-addn-field"><span>Website:&nbsp;&nbsp;</span><span>adarshpankaj.framer.website</span></div><div class="business-addn-field"><span>Facebook:&nbsp;&nbsp;</span><span>www.facebook.com/adarshpankaj</span></div></div>
+                    </div>
+                  </div>
+
+                  <div id="invoice-details-meta" class="invoice_details" data-subsection-id="1">
+                    <div id="invoice-main-details">
+                      <div id="invoice-number-container">
+                        <div id="invoice-number-label">Invoice No.</div>
+                        <div id="invoice-number">AD171</div>
+                      </div>
+                      <div id="invoice-date-container">
+                        <div id="invoice-date-label">Invoice Date</div>
+                        <div id="invoice-date">07/07/2026 2:10 PM</div>
+                      </div>
+                      
+                    </div>
+                    <section id="invoice-addn-fields-container"><div id="invoice-sub-details" class="sub-details-class"><div id="invoice-addn-field-container-1">
+            <div id="invoice-addn-field-name-1">Invoice Signature</div>
+            <div id="invoice-addn-field-value-1">#123</div>
+        </div></div></section>
+                  </div>
+                </div>
+
+                <!-- Address details -->
+                <div id="address-details" class="party_details" data-subsection-id="2">
+                  <div id="bill-to">
+                    <div id="title-bill-to" class="title-bill-ship-to">BILL TO</div>
+                    <div id="bill-to-company-name">Cash Sale</div>
+                    <div class="meta-bill-ship-to">
+                      <div id="bill-to-address-container">
+                        <span class="field-bill-ship-to">Address:</span>
+                        <span id="bill-to-address">Karnataka, </span>
+                      </div>
+                      <div>
+                        
+                        
+                        <span id="bill-to-place-of-supply-label" class="field-bill-ship-to">Place of Supply:</span>
+                        <span id="bill-to-place-of-supply">Karnataka</span>
+                      </div>
+                      <div>
+                        <div id="bill-to-mobile-container" class="mr-4">
+                          <span class="field-bill-ship-to">Mobile:</span>
+                          <span id="bill-to-mobile">6303850191</span>
+                        </div>
+                        
+                      </div>
+                      
+                    </div>
+                  </div>
+                  <div id="ship-to">
+                    <div id="title-ship-to" class="title-bill-ship-to">SHIP TO</div>
+                    <div id="ship-to-company-name">Cash Sale</div>
+                    <div class="meta-bill-ship-to">
+                      <div id="ship-to-address-container">
+                        <span class="field-bill-ship-to">Address:</span>
+                        <span id="ship-to-address">A901sjr brooklyn, Karnataka, </span>
+                      </div>
+                      
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Items Table -->
+                <table id="items-table" class="item_table" data-subsection-id="3">
+                  <thead>
+                    <tr>
+                      <th scope="col" class="items-table-header" style="background-color: #E2E2E2;">S.NO.</th>
+                      <th scope="col" class="items-table-header items-type-header" style="background-color: #E2E2E2;">ITEMS</th>
+                      
+                      <th scope="col" class="items-table-header items-addn1-header items-addn1-column wrap-custom-field" style="background-color: #E2E2E2;">BATCH NO.</th>
+                      
+                      
+                      
+                      <th scope="col" class="items-table-header items-qty-column" style="background-color: #E2E2E2;">QTY.</th>
+                      <th scope="col" class="items-table-header items-mrp-header items-mrp-column" style="background-color: #E2E2E2;">
+                        MRP
+                      </th>
+                      <th scope="col" class="items-table-header items-rate-header items-rate-column" style="background-color: #E2E2E2;">
+                        RATE
+                      </th>
+                      
+                      <th scope="col" class="items-table-header" style="background-color: #E2E2E2;">TAX</th>
+                      
+                      <th scope="col" class="items-table-header" style="background-color: #E2E2E2;">AMOUNT</th>
+                    </tr>
+                  </thead>
+                  <tbody id="items-table-content"><tr><td class="items-table-info item-serial-number" style="" data-row="0">1</td>
+            <td class="items-table-info item-name-desc" style="" data-row="0">
+              <div class="item-title-row">
+                <div class="item-image"></div>
+                <div>
+                  <div class="item-name">Batch</div>
+                </div>
+              </div>
+            </td><td class="items-table-info item-addn1 items-addn1-column wrap-custom-field" style="" data-row="0">234</td><td class="items-table-info items-qty-column" style="" data-row="0">
+                <div class="item-quantity">2 PCS</div><div class="item-alternate-unit-qty"></div>
+              </td><td class="items-table-info item-mrp items-mrp-column" style=" nowrap" data-row="0">150</td> <td class="items-table-info items-rate-column" style="" data-row="0">
+              <div class="item-rate">150</div><div class="item-alternate-unit-rate"></div>
+            </td><td class="items-table-info tax-column"><div class="item-tax-amount">0</div><div class="item-tax-percentage">(0%)</div></td><td class="items-table-info item-total nowrap" style="" data-row="0">300</td></tr><tr><td class="items-table-info item-serial-number" style="" data-row="1">2</td>
+            <td class="items-table-info item-name-desc" style="" data-row="1">
+              <div class="item-title-row">
+                <div class="item-image"></div>
+                <div>
+                  <div class="item-name">Batch</div>
+                </div>
+              </div>
+            </td><td class="items-table-info item-addn1 items-addn1-column wrap-custom-field" style="" data-row="1">Batch #1</td><td class="items-table-info items-qty-column" style="" data-row="1">
+                <div class="item-quantity">2 PCS</div><div class="item-alternate-unit-qty"></div>
+              </td><td class="items-table-info item-mrp items-mrp-column" style=" nowrap" data-row="1">150</td> <td class="items-table-info items-rate-column" style="" data-row="1">
+              <div class="item-rate">150</div><div class="item-alternate-unit-rate"></div>
+            </td><td class="items-table-info tax-column"><div class="item-tax-amount">0</div><div class="item-tax-percentage">(0%)</div></td><td class="items-table-info item-total nowrap" style="" data-row="1">300</td></tr><tr class="empty-row" style="height: 74.5708333606mm"><td class="items-table-info item-serial-number" style="" data-row="-1"></td>
+            <td class="items-table-info item-name-desc" style="" data-row="-1">
+              <div class="item-title-row">
+                <div class="item-image"></div>
+                <div>
+                  <div class="item-name"></div><div class="item-imei"></div><div class="item-serial-no"></div>
+                </div>
+              </div>
+            </td><td class="items-table-info item-addn1 items-addn1-column wrap-custom-field" style="" data-row="-1"></td><td class="items-table-info items-qty-column" style="" data-row="-1">
+                <div class="item-quantity"></div><div class="item-alternate-unit-qty"></div>
+              </td><td class="items-table-info item-mrp items-mrp-column" style=" nowrap" data-row="-1"></td> <td class="items-table-info items-rate-column" style="" data-row="-1">
+              <div class="item-rate"></div><div class="item-alternate-unit-rate"></div>
+            </td><td class="items-table-info tax-column"><div class="item-tax-amount"></div><div class="item-tax-percentage"></div></td><td class="items-table-info item-total nowrap" style="" data-row="-1"></td></tr><tr><td class="items-table-total" style="background-color: #E2E2E2;"></td><td id="items-table-total-label" class="bold items-table-total" style="background-color: #E2E2E2;">TOTAL</td><td class="items-table-total items-addn1-column wrap-custom-field" style="background-color: #E2E2E2;"></td><td id="items-table-total-qty" class="bold items-table-total items-qty-column" style="background-color: #E2E2E2;">4</td><td class="items-table-total items-mrp-column nowrap" style="background-color: #E2E2E2;"></td><td class="items-table-total items-rate-column" style="background-color: #E2E2E2;"></td><td id="items-table-total-tax" class="bold items-table-total tax-column" style="background-color: #E2E2E2;">₹ 0</td><td id="items-table-total-amount" class="bold items-table-total nowrap" style="background-color: #E2E2E2;">₹ 600</td></tr><tr><td class="items-table-received" style=""></td><td id="items-table-received-label" class="bold items-table-received" style="">RECEIVED AMOUNT</td><td class="items-table-received items-addn1-column wrap-custom-field" style=""></td><td id="items-table-received-qty" class="bold items-table-received items-qty-column" style=""></td><td class="items-table-received items-mrp-column nowrap" style=""></td><td class="items-table-received items-rate-column" style=""></td><td id="items-table-received-tax" class="bold items-table-received tax-column"></td><td id="items-table-received-amount" class="bold items-table-received nowrap">₹ 600</td></tr><tr><td class="items-table-balance" style=""></td><td id="items-table-balance-label" class="bold items-table-balance" style="">BALANCE AMOUNT</td><td class="items-table-balance items-addn1-column wrap-custom-field" style=""></td><td id="items-table-balance-qty" class="bold items-table-balance items-qty-column" style=""></td><td class="items-table-balance items-mrp-column nowrap" style=""></td><td class="items-table-balance items-rate-column" style=""></td><td id="items-table-balance-tax" class="bold items-table-balance tax-column"></td><td id="items-table-balance-amount" class="bold items-table-balance nowrap">₹ 0</td></tr></tbody>
+                </table>
+
+                <!-- Tax details -->
+                <table id="tax-table">
+                  <thead>
+                    <tr>
+                      <th scope="col" class="tax-table-header" style="background-color: #E2E2E2;">HSN/SAC</th>
+                      <th scope="col" class="tax-table-header" style="background-color: #E2E2E2;">Taxable Value</th>
+                      
+                      
+                      <th scope="col" class="tax-table-header tax-igst-column" style="background-color: #E2E2E2;">
+                        <div>IGST</div>
+                        <div class="tax-table-sub-header">
+                          <div class="tax-table-rate-header">Rate</div>
+                          <div class="tax-table-amount-header">Amount</div>
+                        </div>
+                      </th>
+                      
+                      <th scope="col" class="tax-table-header" style="background-color: #E2E2E2;">Total Tax Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tax-table-content"><tr><td class="tax-table-info tax-hsn">-</td><td class="tax-table-info tax-value">600</td><td class="tax-table-sub-info tax-igst-column"><div><div class="tax-igst-rate">0%</div><div class="tax-igst-amount">0</div></div></td><td class="tax-table-info tax-amount">₹ 0</td></tr></tbody>
+                </table>
+
+                <!-- Amount in words and Misc Details to keep together -->
+                <div class="bottom-content-container">
+                  <!-- Amount in words -->
+                  <div id="amount-words-container" class="amount_in_words" data-subsection-id="4">
+                    <div id="amount-words">
+                      <div id="amount-words-label">Total Amount (in words)</div>
+                      <div id="amount-words-value">Six Hundred Rupees</div>
+                    </div>
+                    
+                  </div>
+
+                  <!-- Misc details  -->
+                  <div class="misc-details-container">
+                    <!-- Notes -->
+                    
+
+                    <!-- Bank Details -->
+                    <div id="bank-details" class="misc-details bank_details" data-subsection-id="6">
+                      <div id="bank-details-label">Bank Details</div>
+                      <div class="bank-details-info">
+                        <div class="bank-details-info-label">Name:</div>
+                        <div id="bank-details-name" class="bank-details-value">Pankaj pankaj</div>
+                      </div>
+                      <div class="bank-details-info">
+                        <div class="bank-details-info-label">IFSC Code:</div>
+                        <div id="bank-details-ifsc" class="bank-details-value">HDFC0000184</div>
+                      </div>
+                      <div class="bank-details-info">
+                        <div class="bank-details-info-label">Account No:</div>
+                        <div id="bank-details-account" class="bank-details-value">1234561111</div>
+                      </div>
+                      <div class="bank-details-info">
+                        <div class="bank-details-info-label">Bank:</div>
+                        <div id="bank-details-bank-name" class="bank-details-value">HDFC Bank, BANGALORE - INDIRA NAGAR</div>
+                      </div>
+                    </div>
+
+                    <!-- UPI Details -->
+                    <div id="upi-details" class="misc-details">
+                      <div id="upi-details-container">
+                        <div id="upi-details-meta">
+                          <div id="upi-scan-label">Payment QR Code</div>
+                          <div id="upi-id-label">UPI ID:</div>
+                          <div id="upi-id">adarshpankajsahu@okhdfcbank</div>
+                          
+                          <!-- UPI Apps -->
+                          <div id="upi-apps">
+                            <img src="" height="10px" alt="image">
+                          </div>
+                        </div>
+                        <div id="upi-qr-code-container"><img id="upi-qr-code" src="" alt="upi qr code"></div>
+                      </div>
+                    </div>
+
+                    <!-- Terms and conditions -->
+                    <div id="tnc" class="misc-details tnc" data-subsection-id="7">
+                      <div id="tnc-label">Terms and Conditions</div>
+                      <div id="tnc-value">All reels mentioned herein have been delivered with a collab post with meowsi.</div>
+                    </div>
+
+                    <!-- Signature -->
+                    <div id="signature" class="misc-details signature" data-subsection-id="8">
+                      <div id="signature-img-container"></div>
+                      <div id="signature-label">Authorised Signatory For</div>
+                      <div id="signatory-name">Pankaj Industries</div>
+                    </div>
+
+                    <!-- Receiver's Signature -->
+                    
+                  </div>
+                </div>
+
+                <!-- E Invoicing Container -->
+                
+              </div>
+            </td>
+          </tr>
+        </tbody>
+        <tfoot id="main-footer">
+          <tr>
+            <td>
+              <div class="page-footer-space" style="height: 8px;"></div>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+<div class="page-footer" style="height: 8px;">
+      <!-- Page Branding -->
+      <div class="page-branding" id="page-branding-container">
+        <a href="https://mybillbook.sng.link/A1sl1/kmwx/t5ek" target="_blank">
+          <img src="" height="30mm" alt="image">
+        </a>
+      </div>
+    </div>

@@ -8,6 +8,16 @@ This is a repeatable, per-template loop. Do it once per template.
 
 _Last updated: 2026-07-07_
 
+> **Automated path (preferred).** Instead of copying the whole page and hand-trimming,
+> paste [backend/app/services/invoice_previews/capture_body.js](backend/app/services/invoice_previews/capture_body.js)
+> into the invoice's DevTools Console. It finds the invoice (searching the top
+> document **and** any same-origin `<iframe srcdoc>`), performs the entire trim in
+> §3, refuses if the data is empty (Theme Store), and **downloads the finished
+> `<template>.html`** — so nothing huge is pasted anywhere. Then just move the file
+> from Downloads into `bodies/`. The browser may name it from the page title (e.g.
+> `myBillBook Theme Five.html`); rename to `<template>.html` on the way in. The
+> manual steps below remain the reference for what the script does.
+
 ---
 
 ## 0. Background (why this works)
@@ -52,14 +62,31 @@ That's why the raw saved file looks unstyled when opened alone — that's correc
   this page — there is no iframe). Clear the line and run the clean command above.
 - The invoice renders **directly into `<body>`** (class `invoice-shell-ready`),
   not inside an iframe. Don't look for an iframe.
+- **Do NOT capture the Theme Store screen** (Settings → Themes; page URL contains
+  `theme-store`, shows a grid of cards named *Advanced GST / Billbook / Luxury /
+  Modern / Simple / Stylish …*). It renders each layout with **empty placeholder
+  data** — labels but no company name, no invoice number, no item rows, no amounts.
+  Saving that gives a blank skeleton, which is exactly what this migration avoids.
+  The store's large preview is one `<iframe srcdoc>` (meta = selected template) but
+  its data is still empty. **Capture from a real invoice's preview instead** (open an
+  actual populated invoice, switch its theme to the target, let it render, then run
+  the copy command) — that's the source the good `theme_seven/eight/luxury` files
+  came from.
 
 ---
 
 ## 2. Identify the template (before saving)
 
-Read the paste's `<meta name="description" content="...">` — it MUST equal the
-template you intend to save (e.g. `theme_eight`). If it says something else, the
-app didn't switch layouts; recapture. This is the #1 mistake — always verify.
+Read the **invoice document's** `<meta name="description" content="...">` — it MUST
+equal the template you intend to save (e.g. `theme_eight`). If it says something
+else, the app didn't switch layouts; recapture. This is the #1 mistake — always verify.
+
+**Where that meta lives:** on a real invoice the layout renders inside an
+`<iframe srcdoc>`, and the template name is the meta *inside that iframe*. The
+**top** document only carries the app's marketing SEO description (e.g. _"India's
+best GST billing…"_) — do not read that one. `capture_body.js` handles this by
+reaching into the iframe automatically; if capturing by hand, select the invoice
+frame in the console's frame dropdown first.
 
 Template → id map (from the app's `getThemeId`):
 `theme_one`=1, `theme_two`=2, `theme_three`=3, `theme_four`=4 (A5),
@@ -136,12 +163,12 @@ these two (they're in `A5_TEMPLATES` in invoice_preview.rb). Canvas is
 | theme_seven | 7 | ✅ |
 | theme_luxury | 10 | ✅ |
 | theme_eight | 8 | ✅ |
-| theme_three | 3 | ☐ |
-| theme_five | 5 | ☐ |
-| theme_four (A5) | 4 | ☐ |
-| theme_six (A5) | 6 | ☐ |
-| theme_one | 1 | ☐ |
-| theme_two | 2 | ☐ |
+| theme_three | 3 | ✅ |
+| theme_five | 5 | ✅ |
+| theme_four (A5) | 4 | ✅ |
+| theme_six (A5) | 6 | ✅ |
+| theme_one | 1 | ✅ |
+| theme_two | 2 | ✅ |
 
 **Suggested order** (most visually different from stub first): `theme_three` /
 `theme_five` (boxed), then A5 pair `theme_four` / `theme_six`, then the simpler
