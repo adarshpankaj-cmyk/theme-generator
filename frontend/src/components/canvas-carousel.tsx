@@ -84,29 +84,40 @@ export function CanvasCarousel({
       aria-label={title}
       tabIndex={0}
       onKeyDown={handleKeyDown}
-      className="flex flex-col gap-3 rounded-xl border bg-card p-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+      className="flex animate-in flex-col gap-4 rounded-2xl border border-border/80 bg-card/70 p-5 backdrop-blur duration-500 fade-in slide-in-from-bottom-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
     >
-      <div className="flex items-baseline justify-between gap-3">
-        <h3 className="text-sm font-semibold text-card-foreground">{title}</h3>
-        <p className="text-xs text-muted-foreground">
-          <span className="font-mono">{label}</span>
-          <span className="mx-2">·</span>
-          {index + 1} of {templates.length}
-        </p>
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="font-display text-base font-semibold tracking-tight text-card-foreground">
+          {title}
+        </h3>
+        <div className="flex items-center gap-2.5 text-xs text-muted-foreground">
+          <span className="rounded-full border border-border/80 bg-muted/50 px-2.5 py-0.5 font-mono">
+            {label}
+          </span>
+          <span className="tabular-nums">
+            {index + 1} / {templates.length}
+          </span>
+        </div>
       </div>
 
       <div className="flex flex-col gap-4 lg:flex-row lg:items-stretch">
         <ArrowButton direction="previous" onClick={() => step(-1)} />
 
-        <div className="flex min-w-0 flex-1 items-center justify-center rounded-lg bg-muted/40 p-4">
-          <div className={cn('w-full', PREVIEW_MAX_WIDTH[canvas])}>
-            <PreviewCard key={active.template_id} preview={active} />
+        <div className="flex min-w-0 flex-1 items-center justify-center rounded-xl bg-background/60 p-6 shadow-inner shadow-black/30 ring-1 ring-black/20">
+          <div
+            key={active.template_id}
+            className={cn(
+              'w-full animate-in duration-300 fade-in zoom-in-[0.98]',
+              PREVIEW_MAX_WIDTH[canvas],
+            )}
+          >
+            <PreviewCard preview={active} />
           </div>
         </div>
 
         <ArrowButton direction="next" onClick={() => step(1)} />
 
-        <div className="w-full shrink-0 lg:w-72 lg:border-l lg:pl-4">
+        <div className="w-full shrink-0 lg:w-72 lg:border-l lg:border-border/70 lg:pl-5">
           <BlendPanel
             templateId={active.template_id}
             selectedSelector={selectedSelector}
@@ -135,8 +146,10 @@ export function CanvasCarousel({
               aria-label={`Show ${dotLabel}`}
               onClick={() => onNavigate(canvas, dotIndex)}
               className={cn(
-                'size-2 rounded-full transition-colors',
-                dotIndex === index ? 'bg-primary' : 'bg-border hover:bg-muted-foreground/50',
+                'h-2 rounded-full transition-all duration-300',
+                dotIndex === index
+                  ? 'w-6 bg-brand-bright shadow-sm shadow-brand/50'
+                  : 'w-2 bg-muted hover:bg-muted-foreground/50',
               )}
             />
           );
@@ -158,7 +171,7 @@ function ArrowButton({ direction, onClick }: ArrowButtonProps): JSX.Element {
       type="button"
       onClick={onClick}
       aria-label={isPrevious ? 'Previous theme' : 'Next theme'}
-      className="flex size-9 shrink-0 items-center justify-center self-center rounded-full border bg-background text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+      className="flex size-10 shrink-0 items-center justify-center self-center rounded-full border border-border bg-card text-muted-foreground shadow-md shadow-black/25 transition-all duration-200 hover:scale-105 hover:border-brand/50 hover:text-brand-bright active:scale-95"
     >
       <HugeiconsIcon icon={isPrevious ? ArrowLeft01Icon : ArrowRight01Icon} className="size-5" />
     </button>

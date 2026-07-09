@@ -61,9 +61,9 @@ export function BlendPanel({
   const tint = templateOverride(overrides, templateId).tint_hex ?? '';
 
   return (
-    <div className="flex h-full flex-col gap-4">
+    <div className="flex h-full flex-col gap-5">
       <div className="flex flex-col gap-3">
-        <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <h4 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/80">
           Artwork
         </h4>
         <div className="flex flex-col gap-2">
@@ -83,11 +83,11 @@ export function BlendPanel({
         <ColorField label="Tint" value={tint} onChange={onTemplateTint} />
       </div>
 
-      <div className="flex flex-col gap-1 border-t pt-4">
-        <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+      <div className="flex flex-col gap-2 border-t border-border/70 pt-4">
+        <h4 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/80">
           Strips
         </h4>
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-0.5">
           {selectors.map((selector) => {
             const enabled = isStripEnabled(overrides, templateId, selector);
             const isActive = selector === selectedSelector;
@@ -97,13 +97,19 @@ export function BlendPanel({
                 type="button"
                 onClick={() => onSelectStrip(selector)}
                 className={cn(
-                  'flex items-center justify-between rounded-md px-2 py-1.5 text-left font-mono text-xs transition-colors',
-                  isActive ? 'bg-primary/10 text-primary' : 'hover:bg-muted',
-                  !enabled && 'opacity-50',
+                  'flex items-center justify-between rounded-lg px-2.5 py-1.5 text-left font-mono text-xs transition-colors duration-150',
+                  isActive
+                    ? 'bg-brand/15 text-brand-bright ring-1 ring-brand/30'
+                    : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
+                  !enabled && 'opacity-45',
                 )}
               >
                 <span className="truncate">{selectorLabel(selector)}</span>
-                {!enabled ? <span className="text-[10px] uppercase">off</span> : null}
+                {!enabled ? (
+                  <span className="rounded bg-muted px-1 py-px text-[9px] uppercase tracking-wider">
+                    off
+                  </span>
+                ) : null}
               </button>
             );
           })}
@@ -121,7 +127,7 @@ export function BlendPanel({
           onStripTint={onStripTint}
         />
       ) : (
-        <p className="rounded-md bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
+        <p className="rounded-lg border border-dashed border-border/80 bg-muted/30 px-3 py-2.5 text-xs leading-relaxed text-muted-foreground">
           Click a strip above — or directly in the preview — to adjust it.
         </p>
       )}
@@ -153,7 +159,7 @@ function StripControls({
   const tint = stripSettings(overrides, templateId, selector).tint_hex ?? '';
 
   return (
-    <div className="flex flex-col gap-4 border-t pt-4">
+    <div className="flex animate-in flex-col gap-4 border-t border-border/70 pt-4 duration-300 fade-in">
       <div className="flex items-center justify-between">
         <Label className="text-sm text-muted-foreground">Enabled</Label>
         <Switch

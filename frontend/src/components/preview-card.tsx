@@ -33,7 +33,7 @@ export function PreviewCard({ preview }: PreviewCardProps): JSX.Element {
   );
 
   return (
-    <div className="overflow-hidden rounded-lg border bg-card shadow-sm">
+    <div className="overflow-hidden rounded-lg bg-white shadow-2xl shadow-black/50 ring-1 ring-white/10">
       <PreviewFrame
         title={label}
         srcDoc={srcDoc}

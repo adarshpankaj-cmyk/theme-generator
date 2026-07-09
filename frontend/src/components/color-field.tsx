@@ -31,7 +31,7 @@ export function ColorField({
           disabled={disabled}
           onChange={(event) => onChange(event.target.value)}
           aria-label={label}
-          className="size-8 cursor-pointer rounded-md border border-border bg-transparent disabled:cursor-not-allowed disabled:opacity-50"
+          className="size-8 cursor-pointer appearance-none rounded-lg border border-border bg-transparent transition-shadow hover:ring-2 hover:ring-ring/30 disabled:cursor-not-allowed disabled:opacity-50 [&::-webkit-color-swatch]:rounded-md [&::-webkit-color-swatch]:border-none [&::-webkit-color-swatch-wrapper]:p-1"
         />
         <span className="w-16 font-mono text-xs text-muted-foreground">
           {value ? value.toUpperCase() : 'default'}

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type JSX } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Loading03Icon } from '@hugeicons/core-free-icons';
+import { AiMagicIcon, Loading03Icon, PaintBoardIcon } from '@hugeicons/core-free-icons';
 import { PromptBar } from '@/components/prompt-bar';
 import { CanvasCarousel } from '@/components/canvas-carousel';
 import { StatusBanner } from '@/components/status-banner';
@@ -247,11 +247,18 @@ export function App(): JSX.Element {
   const isBusy = generate.isPending || status === 'generating';
 
   return (
-    <div className="min-h-svh bg-background text-foreground">
-      <header className="border-b">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <h1 className="text-lg font-semibold">Theme Generator</h1>
-          <span className="text-sm text-muted-foreground">Internal · myBillbook</span>
+    <div className="min-h-svh text-foreground">
+      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/70 backdrop-blur-md">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3.5">
+          <div className="flex items-center gap-3">
+            <div className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-bright to-brand shadow-md shadow-brand/40">
+              <HugeiconsIcon icon={PaintBoardIcon} className="size-4.5 text-white" />
+            </div>
+            <h1 className="font-display text-lg font-semibold tracking-tight">Theme Generator</h1>
+          </div>
+          <span className="rounded-full border border-border/80 bg-card/60 px-3 py-1 text-xs text-muted-foreground">
+            Internal · myBillbook
+          </span>
         </div>
       </header>
 
@@ -274,17 +281,30 @@ export function App(): JSX.Element {
         ) : null}
 
         {!status ? (
-          <div className="rounded-xl border border-dashed bg-card/50 px-6 py-16 text-center text-muted-foreground">
-            Enter a prompt above to generate a theme and preview it across every invoice format.
+          <div className="flex animate-in flex-col items-center gap-4 rounded-2xl border border-dashed border-border/80 bg-card/40 px-6 py-20 text-center duration-500 fade-in slide-in-from-bottom-2">
+            <div className="flex size-14 items-center justify-center rounded-2xl bg-brand/15 ring-1 ring-brand/30">
+              <HugeiconsIcon icon={AiMagicIcon} className="size-7 text-brand-bright" />
+            </div>
+            <div>
+              <p className="font-display text-lg font-medium text-foreground">
+                Describe a theme to get started
+              </p>
+              <p className="mt-1 max-w-md text-sm text-muted-foreground">
+                Your prompt becomes artwork variants, previewed live on every A4 and A5 invoice
+                format.
+              </p>
+            </div>
           </div>
         ) : null}
 
         {isReady && theme ? (
           <>
-            <div className="flex items-center justify-between">
+            <div className="flex animate-in items-center justify-between duration-500 fade-in slide-in-from-bottom-2">
               <div className="min-w-0">
-                <h2 className="truncate text-base font-semibold">{theme.name}</h2>
-                <p className="font-mono text-xs text-muted-foreground">{theme.slug}</p>
+                <h2 className="truncate font-display text-2xl font-semibold tracking-tight">
+                  {theme.name}
+                </h2>
+                <p className="mt-0.5 font-mono text-xs text-muted-foreground">{theme.slug}</p>
               </div>
               <DownloadButton themeId={theme.id} slug={theme.slug} />
             </div>
@@ -298,14 +318,14 @@ export function App(): JSX.Element {
             ) : null}
 
             {previewQuery.isLoading ? (
-              <div className="flex items-center justify-center gap-2 rounded-xl border bg-card px-6 py-16 text-muted-foreground">
-                <HugeiconsIcon icon={Loading03Icon} className="size-5 animate-spin" />
+              <div className="flex items-center justify-center gap-2.5 rounded-2xl border border-border/80 bg-card/60 px-6 py-16 text-muted-foreground">
+                <HugeiconsIcon icon={Loading03Icon} className="size-5 animate-spin text-brand-bright" />
                 <span className="text-sm">Loading previews…</span>
               </div>
             ) : null}
 
             {!previewQuery.isLoading && templatesByCanvas.a4.length + templatesByCanvas.a5.length === 0 ? (
-              <div className="rounded-xl border bg-card px-6 py-16 text-center text-sm text-muted-foreground">
+              <div className="rounded-2xl border border-border/80 bg-card/60 px-6 py-16 text-center text-sm text-muted-foreground">
                 No previews available for this theme.
               </div>
             ) : null}
