@@ -1,15 +1,21 @@
-# Render Blueprint for the theme-generator Rails backend.
+# Render Blueprint for the theme-generator Rails backend (all free tier).
 # Frontend is deployed separately on Vercel (see frontend/vercel.json + DEPLOY.md).
 #
-# One web service runs Puma + Sidekiq together on a persistent disk so the
-# background image job and the API share the same Active Storage files.
+# One web service runs Puma + Sidekiq together (backend/bin/render-start).
 # Deploy: push this file, then in Render → "New +" → "Blueprint" and pick the repo.
+#
+# FREE-TIER CAVEATS:
+#  - No persistent disk, so Active Storage writes to an EPHEMERAL disk: generated
+#    theme images are lost when the instance spins down or redeploys. Fine for
+#    testing; upgrade the web service to "starter" + add a disk for persistence.
+#  - The web service spins down after ~15 min idle (≈50s cold start on next hit).
+#  - The free Postgres database expires 30 days after creation.
 
 databases:
   - name: theme-generator-db
     databaseName: backend_production
     user: backend
-    plan: basic-256mb # bump as needed; free tier expires after 30 days
+    plan: free
 
 services:
   # Redis / Key Value store for Sidekiq + Action Cable.
@@ -23,16 +29,11 @@ services:
   - type: web
     name: theme-generator-api
     runtime: ruby
-    rootDir: backend
-    plan: starter # persistent disks require a paid instance type
+    rootDir: backend # Gemfile lives in backend/, not the repo root
+    plan: free
     buildCommand: bundle install
-    preDeployCommand: bundle exec rails db:prepare # create + migrate before traffic
-    startCommand: bin/render-start
+    startCommand: bin/render-start # runs db:prepare, then Sidekiq + Puma
     healthCheckPath: /up
-    disk:
-      name: active-storage
-      mountPath: /opt/render/project/src/backend/storage # matches Rails.root/storage
-      sizeGB: 1
     envVars:
       - key: RAILS_ENV
         value: production
@@ -43,7 +44,7 @@ services:
       - key: RAILS_SERVE_STATIC_FILES
         value: "true"
       - key: WEB_CONCURRENCY
-        value: "1" # single Puma process — keeps the shared disk on one instance
+        value: "1" # single Puma process (keeps memory + the local disk on one box)
       - key: DATABASE_URL
         fromDatabase:
           name: theme-generator-db

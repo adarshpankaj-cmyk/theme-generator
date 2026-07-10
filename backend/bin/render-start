@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
 # Boot the Rails API (Puma) and the Sidekiq worker in a single Render service so
-# both processes share the same Active Storage disk (mounted as a persistent
-# disk at ./storage). Sidekiq runs in the background; Puma stays in the
-# foreground as the container's main process. If either dies the container
-# exits and Render restarts it.
+# both processes share the same Active Storage disk. Sidekiq runs in the
+# background; Puma stays in the foreground as the container's main process. If
+# either dies the container exits and Render restarts it.
+#
+# db:prepare runs here (not as a preDeployCommand) because pre-deploy commands
+# require a paid Render instance. It creates the schema on first boot and is a
+# no-op once migrations are up to date.
 set -euo pipefail
+
+bundle exec rails db:prepare
 
 bundle exec sidekiq &
 SIDEKIQ_PID=$!

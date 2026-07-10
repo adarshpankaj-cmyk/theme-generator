@@ -17,13 +17,17 @@ Deploy the **backend first** so you have its public URL for the frontend's env v
 
 ## 1. Backend → Render
 
-Config lives in [`render.yaml`](render.yaml). It provisions:
+Config lives in [`render.yaml`](render.yaml) (all **free tier**). It provisions:
 
-- a **web service** running Puma **and** Sidekiq together (`backend/bin/render-start`)
-  on a **1 GB persistent disk** mounted at `backend/storage`, so the image job and
-  the API share the same Active Storage files;
+- a **web service** running Puma **and** Sidekiq together (`backend/bin/render-start`);
 - a managed **Postgres** database (`DATABASE_URL` injected automatically);
 - a managed **Redis / Key Value** store (`REDIS_URL` injected automatically).
+
+> **Free-tier caveats:** no persistent disk, so generated theme images live on an
+> ephemeral disk and are lost on spin-down/redeploy; the web service cold-starts
+> (~50s) after ~15 min idle; the free Postgres expires 30 days after creation. To
+> make images durable, upgrade the web service to `starter` and add a 1 GB disk
+> mounted at `backend/storage`.
 
 ### Steps
 
@@ -41,12 +45,12 @@ Config lives in [`render.yaml`](render.yaml). It provisions:
    | `PUBLISH_API_TOKEN` | *optional* |
    | `A4_WIDTH` / `A4_HEIGHT` / `A5_WIDTH` / `A5_HEIGHT` | *optional* — override default render dimensions |
 
-4. `preDeployCommand` runs `rails db:prepare` (create + migrate) automatically.
+4. `bin/render-start` runs `rails db:prepare` on boot (create + migrate), then
+   starts Sidekiq + Puma. (Free tier has no `preDeployCommand`, which is paid-only.)
 5. Health check: Render polls `/up`. When green, note the URL, e.g.
    `https://theme-generator-api.onrender.com`. The API base is that **+ `/api`**.
 
-> **Plan note:** persistent disks require a paid instance type (`starter`). Redis
-> `maxmemory-policy` is set to `noeviction`, which Sidekiq requires.
+> **Note:** Redis `maxmemory-policy` is set to `noeviction`, which Sidekiq requires.
 
 ---
 
