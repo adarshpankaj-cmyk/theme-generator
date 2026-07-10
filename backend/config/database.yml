@@ -80,6 +80,9 @@ test:
 #
 production:
   <<: *default
-  database: backend_production
-  username: backend
+  # Managed hosts (Render, etc.) inject a single DATABASE_URL. When it is
+  # absent (e.g. a self-managed box) fall back to discrete credentials.
+  url: <%= ENV["DATABASE_URL"] %>
+  database: <%= ENV.fetch("BACKEND_DATABASE_NAME", "backend_production") %>
+  username: <%= ENV.fetch("BACKEND_DATABASE_USER", "backend") %>
   password: <%= ENV["BACKEND_DATABASE_PASSWORD"] %>
