@@ -22,6 +22,6 @@ body::before {
 .items-table-total,
 .items-table-total-foreign,
 .tax-table-header {
-  background-color: #FEF5E9 !important;
+  background-color: rgba(254, 245, 233, 0.35) !important;
   mix-blend-mode: multiply;
 }

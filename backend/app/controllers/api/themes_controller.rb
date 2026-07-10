@@ -77,9 +77,9 @@ module Api
       params.permit(:name, :prompt)
     end
 
-    # Permit opacity/tint plus the arbitrary-keyed nested `strips` hash.
+    # Permit opacity/tint/blend-mode plus the arbitrary-keyed nested `strips` hash.
     def blend_attrs
-      permitted = params.permit(:artwork_opacity, :tint_hex).to_h
+      permitted = params.permit(:artwork_opacity, :tint_hex, :blend_mode).to_h
       permitted["strips"] = params[:strips].permit!.to_h if params[:strips].present?
       permitted
     end

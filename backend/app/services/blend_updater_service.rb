@@ -4,7 +4,7 @@
 # per-strip settings) to a theme's `blend_overrides`, persists it, and returns
 # the recomputed CSS. Powers `PATCH /themes/:id/blend` (SPEC.md §8, §4.1).
 class BlendUpdaterService
-  TEMPLATE_KEYS = %w[artwork_opacity tint_hex].freeze
+  TEMPLATE_KEYS = %w[artwork_opacity tint_hex blend_mode].freeze
 
   # @param theme [Theme]
   # @param template_id [String]

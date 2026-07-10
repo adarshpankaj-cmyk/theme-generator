@@ -1,7 +1,17 @@
-import type { BlendOverrides, StripSettings, TemplateOverride } from '@/api/types';
+import type { BlendMode, BlendOverrides, StripSettings, TemplateOverride } from '@/api/types';
 import { findTemplate } from '@/lib/template-registry';
 
 const FALLBACK_OPACITY = 0.6;
+
+/**
+ * A strip's opacity is a *relative* multiplier on the template opacity, so an
+ * un-customized strip sits at 1.0 (full = same as the artwork opacity). This
+ * matches the backend, which renders default strips at the effective opacity.
+ */
+export const STRIP_DEFAULT_ALPHA = 1;
+
+/** Default blend mode when a template has no override (matches the backend). */
+export const DEFAULT_BLEND_MODE: BlendMode = 'multiply';
 
 /** The override entry for a template, or an empty object. */
 export function templateOverride(overrides: BlendOverrides, templateId: string): TemplateOverride {
@@ -42,14 +52,23 @@ export function isStripEnabled(
   return stripSettings(overrides, templateId, selector).enabled ?? true;
 }
 
-/** Effective per-strip alpha, falling back to the template's effective opacity. */
+/**
+ * Effective per-strip opacity multiplier (0–1), defaulting to `STRIP_DEFAULT_ALPHA`
+ * (full). This is *relative* to the template opacity — the rendered tint alpha is
+ * `artwork_opacity × this` — so an un-customized strip reads 100%, matching what
+ * the backend actually paints.
+ */
 export function effectiveStripAlpha(
   overrides: BlendOverrides,
   templateId: string,
   selector: string,
-  fallback: number,
 ): number {
-  return stripSettings(overrides, templateId, selector).alpha ?? fallback;
+  return stripSettings(overrides, templateId, selector).alpha ?? STRIP_DEFAULT_ALPHA;
+}
+
+/** Effective template blend mode: override → default `multiply`. */
+export function effectiveBlendMode(overrides: BlendOverrides, templateId: string): BlendMode {
+  return templateOverride(overrides, templateId).blend_mode ?? DEFAULT_BLEND_MODE;
 }
 
 /** Immutably merge a template-level patch into the overrides map. */
@@ -62,6 +81,15 @@ export function withTemplatePatch(
     ...overrides,
     [templateId]: { ...templateOverride(overrides, templateId), ...patch },
   };
+}
+
+/** Immutably drop the template-level tint override, reverting to the inherited default. */
+export function withTemplateTintCleared(
+  overrides: BlendOverrides,
+  templateId: string,
+): BlendOverrides {
+  const { tint_hex: _cleared, ...rest } = templateOverride(overrides, templateId);
+  return { ...overrides, [templateId]: rest };
 }
 
 /** Immutably merge a strip-level patch into the overrides map. */

@@ -29,6 +29,6 @@ td[class^="items-table-tax-total-"],
 .items-table-tax-tds,
 .items-table-curr-balance,
 .items-table-linked-cndn-record {
-  background-color: #FEF5E9 !important;
+  background-color: rgba(254, 245, 233, 0.35) !important;
   mix-blend-mode: multiply;
 }

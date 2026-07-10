@@ -1,7 +1,7 @@
 import type { JSX, KeyboardEvent } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowLeft01Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons';
-import type { BlendOverrides, Canvas, TemplatePreview } from '@/api/types';
+import type { BlendMode, BlendOverrides, Canvas, TemplatePreview } from '@/api/types';
 import { PreviewCard } from '@/components/preview-card';
 import { BlendPanel } from '@/components/blend-panel';
 import { findTemplate, templateLabel } from '@/lib/template-registry';
@@ -21,6 +21,8 @@ interface CanvasCarouselProps {
   readonly onSelectStrip: (canvas: Canvas, selector: string) => void;
   readonly onArtworkOpacity: (templateId: string, value: number) => void;
   readonly onTemplateTint: (templateId: string, hex: string) => void;
+  readonly onTemplateTintClear: (templateId: string) => void;
+  readonly onBlendMode: (templateId: string, mode: BlendMode) => void;
   readonly onStripEnabled: (templateId: string, selector: string, enabled: boolean) => void;
   readonly onStripAlpha: (templateId: string, selector: string, alpha: number) => void;
   readonly onStripTint: (templateId: string, selector: string, hex: string) => void;
@@ -49,6 +51,8 @@ export function CanvasCarousel({
   onSelectStrip,
   onArtworkOpacity,
   onTemplateTint,
+  onTemplateTintClear,
+  onBlendMode,
   onStripEnabled,
   onStripAlpha,
   onStripTint,
@@ -126,6 +130,8 @@ export function CanvasCarousel({
             onSelectStrip={(selector) => onSelectStrip(canvas, selector)}
             onArtworkOpacity={(value) => onArtworkOpacity(active.template_id, value)}
             onTemplateTint={(hex) => onTemplateTint(active.template_id, hex)}
+            onTemplateTintClear={() => onTemplateTintClear(active.template_id)}
+            onBlendMode={(mode) => onBlendMode(active.template_id, mode)}
             onStripEnabled={(selector, enabled) => onStripEnabled(active.template_id, selector, enabled)}
             onStripAlpha={(selector, alpha) => onStripAlpha(active.template_id, selector, alpha)}
             onStripTint={(selector, hex) => onStripTint(active.template_id, selector, hex)}

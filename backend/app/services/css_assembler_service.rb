@@ -55,13 +55,14 @@ class CssAssemblerService
 
   # Normalize a CSS string so semantically-equal files compare equal despite the
   # reference source's inconsistencies (SPEC.md §2.2 / §11): LF endings, no
-  # trailing whitespace, always `mix-blend-mode: multiply !important;`, always
-  # the `transform` line, and no surrounding blank lines.
+  # trailing whitespace, always a `!important` on whatever `mix-blend-mode` is
+  # emitted (default `multiply`, or any user-picked mode), always the `transform`
+  # line, and no surrounding blank lines.
   # @param css [String]
   # @return [String]
   def self.normalize(css)
     lines = css.gsub("\r\n", "\n").tr("\r", "\n").split("\n", -1).map do |line|
-      line.rstrip.sub(/(mix-blend-mode:\s*multiply)\s*(?:!important)?\s*;/, '\1 !important;')
+      line.rstrip.sub(/(mix-blend-mode:\s*[a-z-]+)\s*(?:!important)?\s*;/, '\1 !important;')
     end
     text = lines.join("\n")
 
@@ -82,6 +83,13 @@ class CssAssemblerService
   # Template-level tint: template override → theme default.
   def template_tint
     (@overrides["tint_hex"] || @theme.tint_hex).to_s.upcase
+  end
+
+  # Template-level blend mode: override → default `multiply`. Applied to every
+  # strip rule (SPEC.md §7). Kept as a plain CSS keyword; `normalize` forces the
+  # trailing `!important`.
+  def effective_blend_mode
+    @overrides["blend_mode"].presence&.to_s || "multiply"
   end
 
   # Per-template strip overrides ({ selector => { enabled?, tint_hex?, alpha? } }).
@@ -124,24 +132,31 @@ class CssAssemblerService
     override.key?("tint_hex") || override.key?("alpha")
   end
 
-  # The single shared rule that tints all default strips (SPEC.md §2.1).
+  # The single shared rule that tints all default strips. The tint carries the
+  # template's effective opacity so the whole overlay (watermark + strips) fades
+  # together with the artwork-opacity control. (Intentionally diverges from the
+  # legacy solid-tint ThemeStore reference — see SPEC.md §2.1.)
   def shared_rule(selectors)
     <<~RULE.strip
       #{selectors.join(",\n")} {
-        background-color: #{template_tint} !important;
-        mix-blend-mode: multiply !important;
+        background-color: #{rgba(template_tint, format_number(effective_opacity))} !important;
+        mix-blend-mode: #{effective_blend_mode} !important;
       }
     RULE
   end
 
-  # A dedicated rule for one customized strip, using rgba(tint, alpha) (§7).
+  # A dedicated rule for one customized strip (§7). Per-strip `alpha` is a
+  # *relative* multiplier on the template opacity, so the rendered tint alpha is
+  # `effective_opacity × alpha` (defaulting to the effective opacity when the
+  # strip only overrides its tint).
   def custom_rule(selector, override)
     hex = (override["tint_hex"] || template_tint).to_s.upcase
-    alpha = override.key?("alpha") ? format_number(override["alpha"]) : "1"
+    multiplier = override.key?("alpha") ? override["alpha"].to_f : 1.0
+    alpha = format_number(effective_opacity * multiplier)
     <<~RULE.strip
       #{selector} {
         background-color: #{rgba(hex, alpha)} !important;
-        mix-blend-mode: multiply !important;
+        mix-blend-mode: #{effective_blend_mode} !important;
       }
     RULE
   end

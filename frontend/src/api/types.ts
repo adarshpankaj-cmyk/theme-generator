@@ -23,9 +23,25 @@ export const ThemeStatusValue = {
   Failed: 'failed',
 } as const satisfies Record<string, ThemeStatus>;
 
+/**
+ * CSS `mix-blend-mode` values offered by the blend editor. Kept in sync with the
+ * backend, which defaults to `multiply` and forces `!important` on whatever mode
+ * is emitted.
+ */
+export type BlendMode =
+  | 'multiply'
+  | 'screen'
+  | 'overlay'
+  | 'darken'
+  | 'lighten'
+  | 'hard-light'
+  | 'soft-light'
+  | 'normal';
+
 /** Per-strip blend settings, keyed by CSS selector. */
 export interface StripSettings {
   readonly enabled?: boolean;
+  /** Relative opacity multiplier on the template opacity (0–1). */
   readonly alpha?: number;
   readonly tint_hex?: string;
 }
@@ -34,6 +50,7 @@ export interface StripSettings {
 export interface TemplateOverride {
   readonly artwork_opacity?: number;
   readonly tint_hex?: string;
+  readonly blend_mode?: BlendMode;
   readonly strips?: Record<string, StripSettings>;
 }
 
@@ -117,11 +134,16 @@ export interface RegenerateInput {
   readonly prompt?: string;
 }
 
-/** Blend patch body. `template_id` targets the card; the rest are partial. */
+/**
+ * Blend patch body. `template_id` targets the card; the rest are partial.
+ * `tint_hex: null` explicitly clears a template tint override (revert to the
+ * theme default), distinct from `undefined` (leave untouched).
+ */
 export interface BlendInput {
   readonly template_id: string;
   readonly artwork_opacity?: number;
-  readonly tint_hex?: string;
+  readonly tint_hex?: string | null;
+  readonly blend_mode?: BlendMode;
   readonly strips?: Record<string, StripSettings>;
 }
 
