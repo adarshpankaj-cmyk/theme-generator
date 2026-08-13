@@ -137,6 +137,26 @@ RSpec.describe "Api::Themes", type: :request do
       expect(response.headers["Content-Disposition"]).to include("ganesh.zip")
       expect(response.body.bytesize).to be > 0
     end
+
+    it "packages under a requested name without renaming the theme" do
+      theme = Theme.create!(name: "Ganesh", slug: "ganesh", tint_hex: "#FEF5E9")
+      attach_reference_images(theme)
+
+      get "/api/themes/#{theme.id}/download", params: { name: "Azadi 2026" }
+
+      expect(response).to have_http_status(:ok)
+      expect(response.headers["Content-Disposition"]).to include("azadi_2026.zip")
+      expect(theme.reload.slug).to eq("ganesh")
+    end
+
+    it "returns 422 when the requested name has no usable characters" do
+      theme = Theme.create!(name: "Ganesh", slug: "ganesh", tint_hex: "#FEF5E9")
+      attach_reference_images(theme)
+
+      get "/api/themes/#{theme.id}/download", params: { name: "!!!" }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
   end
 
   describe "GET /api/themes/:id/preview" do

@@ -8,6 +8,7 @@ module Api
     rescue_from ActiveRecord::RecordInvalid, with: :render_unprocessable
     rescue_from TemplateRegistry::UnknownTemplateError, with: :render_unprocessable
     rescue_from ArtworkUploadService::InvalidImageError, with: :render_unprocessable
+    rescue_from ThemePackagerService::InvalidNameError, with: :render_unprocessable
     rescue_from ActionController::ParameterMissing, with: :render_unprocessable
 
     private

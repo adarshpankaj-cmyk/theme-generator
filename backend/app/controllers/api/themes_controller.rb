@@ -67,13 +67,16 @@ module Api
       }
     end
 
-    # GET /api/themes/:id/download
+    # GET /api/themes/:id/download[?name=my_theme]
+    # `name` renames the package — the zip, its root folder, `.overlay_name`,
+    # and the artwork url in every stylesheet — without touching the theme.
     def download
-      zip = Tempfile.new([@theme.slug, ".zip"], binmode: true)
-      ThemePackagerService.new(@theme).zip(zip.path)
+      packager = ThemePackagerService.new(@theme, overlay_name: params[:name])
+      zip = Tempfile.new([packager.overlay_name, ".zip"], binmode: true)
+      packager.zip(zip.path)
       send_data File.binread(zip.path),
                 type: "application/zip",
-                filename: "#{@theme.slug}.zip",
+                filename: "#{packager.overlay_name}.zip",
                 disposition: "attachment"
     ensure
       zip&.close!

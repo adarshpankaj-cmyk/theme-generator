@@ -30,8 +30,13 @@ export interface ThemesApi {
   blend(id: number, input: BlendInput): Promise<BlendResponse>;
   selectVariant(id: number, input: SelectVariantInput): Promise<SelectVariantResponse>;
   publish(id: number): Promise<PublishResponse>;
-  /** Direct URL for the theme zip; hand to an anchor to trigger a download. */
-  downloadUrl(id: number): string;
+  /**
+   * Direct URL for the theme zip; hand to an anchor to trigger a download.
+   * `name` packages the theme under that name — the zip, its root folder,
+   * `.overlay_name`, and the artwork url in every stylesheet — leaving the
+   * stored theme untouched. Omit it to use the theme's own slug.
+   */
+  downloadUrl(id: number, name?: string): string;
 }
 
 export const themesApi: ThemesApi = {
@@ -79,7 +84,7 @@ export const themesApi: ThemesApi = {
     return request<PublishResponse>(`/themes/${id}/publish`, { method: 'POST' });
   },
 
-  downloadUrl(id) {
-    return apiUrl(`/themes/${id}/download`);
+  downloadUrl(id, name) {
+    return apiUrl(`/themes/${id}/download`, name === undefined ? undefined : { name });
   },
 };

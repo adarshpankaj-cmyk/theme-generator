@@ -35,17 +35,23 @@ class CssAssemblerService
 
   TRANSFORM_LINE = "  transform: translate(0%, 0%) scale(1);"
 
-  def initialize(theme, template_id)
+  # @param theme [Theme]
+  # @param template_id [String]
+  # @param overlay_name [String, nil] the packaged folder name the artwork url
+  #   should point at. Defaults to the theme's slug; the packager passes a
+  #   download-time name so the css matches the folder it ships in.
+  def initialize(theme, template_id, overlay_name: nil)
     @theme = theme
     @template = TemplateRegistry.find(template_id)
     @overrides = theme.overrides_for(template_id)
+    @overlay_name = overlay_name.presence || theme.slug
   end
 
   # @return [String] the normalized latest.css for this theme + template.
   def call
     css = format(
       TEMPLATE,
-      overlay_name: @theme.slug,
+      overlay_name: @overlay_name,
       canvas: @template.canvas,
       opacity: format_number(effective_opacity),
       rules: build_rules
