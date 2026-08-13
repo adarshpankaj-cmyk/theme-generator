@@ -73,6 +73,31 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
     body: body === undefined ? undefined : JSON.stringify(body),
   });
 
+  return parse<T>(response, method, path);
+}
+
+/**
+ * Perform a multipart upload and parse the response as `T`. The Content-Type
+ * header is deliberately left unset so the browser can add the multipart
+ * boundary itself.
+ * @throws {ApiError} on any non-2xx status.
+ */
+export async function upload<T>(
+  path: string,
+  formData: FormData,
+  options: Pick<RequestOptions, 'signal'> = {},
+): Promise<T> {
+  const response = await fetch(apiUrl(path), {
+    method: 'POST',
+    signal: options.signal,
+    body: formData,
+  });
+
+  return parse<T>(response, 'POST', path);
+}
+
+/** Shared response handling for {@link request} and {@link upload}. */
+async function parse<T>(response: Response, method: string, path: string): Promise<T> {
   const text = await response.text();
   const parsed: unknown = text.length > 0 ? JSON.parse(text) : null;
 

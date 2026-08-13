@@ -113,6 +113,12 @@ export interface CreateThemeInput {
   readonly prompt: string;
 }
 
+/** Input for the upload-artwork flow: the file, plus the name to file it under. */
+export interface UploadArtworkInput {
+  readonly name: string;
+  readonly file: File;
+}
+
 export interface RegenerateInput {
   readonly prompt?: string;
 }

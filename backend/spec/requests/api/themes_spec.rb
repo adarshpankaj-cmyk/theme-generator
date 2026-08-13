@@ -57,6 +57,40 @@ RSpec.describe "Api::Themes", type: :request do
     end
   end
 
+  describe "POST /api/themes/:id/upload-artwork" do
+    let(:artwork) do
+      Rack::Test::UploadedFile.new(ReferenceTheme::ROOT.join("images", "a4.jpeg").to_s, "image/jpeg")
+    end
+
+    it "makes the uploaded image the artwork and returns the ready theme" do
+      theme = Theme.create!(name: "Independence Day")
+
+      expect { post "/api/themes/#{theme.id}/upload-artwork", params: { image: artwork } }
+        .not_to have_enqueued_job(GenerateThemeImagesJob)
+
+      expect(response).to have_http_status(:ok)
+      body = response.parsed_body
+      expect(body["status"]).to eq("ready")
+      expect(body["a4_image_urls"].size).to eq(1)
+      expect(body["a5_image_urls"].size).to eq(1)
+      expect(body["tint_hex"]).to match(/\A#[0-9A-F]{6}\z/)
+      expect(theme.reload.status).to eq("ready")
+    end
+
+    it "returns 422 when no image is supplied" do
+      theme = Theme.create!(name: "Independence Day")
+      post "/api/themes/#{theme.id}/upload-artwork"
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response.parsed_body["error"].join).to match(/required/)
+    end
+
+    it "returns 404 for an unknown theme" do
+      post "/api/themes/999999/upload-artwork", params: { image: artwork }
+      expect(response).to have_http_status(:not_found)
+    end
+  end
+
   describe "POST /api/themes/:id/regenerate" do
     it "updates the prompt and re-enqueues generation" do
       theme = Theme.create!(name: "Ganesh", prompt: "old")

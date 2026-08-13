@@ -13,6 +13,7 @@ import {
   useSelectVariant,
   useTheme,
   useThemePreview,
+  useUploadArtwork,
 } from '@/hooks/use-themes';
 import { withStripPatch, withTemplatePatch } from '@/lib/blend';
 import { findTemplate } from '@/lib/template-registry';
@@ -23,6 +24,7 @@ import type {
   PreviewResponse,
   TemplateOverride,
   TemplatePreview,
+  UploadArtworkInput,
 } from '@/api/types';
 
 /** Debounce window for blend PATCHes while dragging sliders (SPEC §5). */
@@ -52,6 +54,7 @@ export function App(): JSX.Element {
   const [selectedVariant, setSelectedVariant] = useState<number>(0);
 
   const generate = useGenerateTheme();
+  const uploadArtwork = useUploadArtwork();
   const themeQuery = useTheme(currentThemeId);
   const theme = themeQuery.data;
   const regenerate = useRegenerateTheme(currentThemeId ?? 0);
@@ -149,6 +152,10 @@ export function App(): JSX.Element {
 
   const handleGenerate = (input: CreateThemeInput): void => {
     generate.mutate(input, { onSuccess: (created) => setCurrentThemeId(created.id) });
+  };
+
+  const handleUpload = (input: UploadArtworkInput): void => {
+    uploadArtwork.mutate(input, { onSuccess: (created) => setCurrentThemeId(created.id) });
   };
 
   const handleNavigate = useCallback((canvas: Canvas, index: number): void => {
@@ -263,11 +270,22 @@ export function App(): JSX.Element {
       </header>
 
       <main className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-8">
-        <PromptBar isGenerating={isBusy} onGenerate={handleGenerate} />
+        <PromptBar
+          isGenerating={isBusy}
+          isUploading={uploadArtwork.isPending}
+          onGenerate={handleGenerate}
+          onUpload={handleUpload}
+        />
 
         {generate.isError ? (
           <p className="text-sm text-destructive">
             Couldn’t start generation: {generate.error.message}
+          </p>
+        ) : null}
+
+        {uploadArtwork.isError ? (
+          <p className="text-sm text-destructive">
+            Couldn’t use that image: {uploadArtwork.error.message}
           </p>
         ) : null}
 
@@ -291,7 +309,7 @@ export function App(): JSX.Element {
               </p>
               <p className="mt-1 max-w-md text-sm text-muted-foreground">
                 Your prompt becomes artwork variants, previewed live on every A4 and A5 invoice
-                format.
+                format. Already have the artwork? Upload it instead.
               </p>
             </div>
           </div>

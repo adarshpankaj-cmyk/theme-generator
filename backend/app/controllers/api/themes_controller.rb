@@ -22,6 +22,14 @@ module Api
       render json: { id: @theme.id, status: @theme.status }, status: :accepted
     end
 
+    # POST /api/themes/:id/upload-artwork
+    # Use a user-supplied image as the artwork instead of generating one. Runs
+    # inline (no engine call, so it is fast) and returns the ready theme.
+    def upload_artwork
+      ArtworkUploadService.new(@theme, params[:image]).call
+      render json: theme_json(@theme)
+    end
+
     # POST /api/themes/:id/regenerate
     def regenerate
       @theme.update!(prompt: params[:prompt]) if params[:prompt].present?

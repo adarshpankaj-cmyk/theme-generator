@@ -7,6 +7,7 @@ Rails.application.routes.draw do
     resources :themes, only: %i[create show] do
       member do
         post :generate
+        post :upload_artwork, path: "upload-artwork"
         post :regenerate
         patch :blend
         patch :select_variant, path: "select-variant"

@@ -17,6 +17,7 @@ import type {
   SelectVariantInput,
   SelectVariantResponse,
   Theme,
+  UploadArtworkInput,
 } from '@/api/types';
 import { ThemeStatusValue } from '@/api/types';
 
@@ -70,6 +71,24 @@ export function useGenerateTheme(): UseMutationResult<Theme, Error, CreateThemeI
       const theme = await themesApi.create(input);
       await themesApi.generate(theme.id);
       return { ...theme, status: ThemeStatusValue.Generating };
+    },
+    onSuccess: (theme) => {
+      queryClient.setQueryData(themeKeys.detail(theme.id), theme);
+    },
+  });
+}
+
+/**
+ * Create a theme from a user-supplied artwork file, skipping image generation.
+ * The backend crops and tints inline, so the resolved theme is already `ready`
+ * and seeding the cache with it means previews load without a poll.
+ */
+export function useUploadArtwork(): UseMutationResult<Theme, Error, UploadArtworkInput> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ name, file }: UploadArtworkInput): Promise<Theme> => {
+      const theme = await themesApi.create({ name, prompt: '' });
+      return themesApi.uploadArtwork(theme.id, file);
     },
     onSuccess: (theme) => {
       queryClient.setQueryData(themeKeys.detail(theme.id), theme);

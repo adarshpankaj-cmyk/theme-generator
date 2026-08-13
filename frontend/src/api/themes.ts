@@ -1,4 +1,4 @@
-import { apiUrl, request } from './http';
+import { apiUrl, request, upload } from './http';
 import type {
   BlendInput,
   BlendResponse,
@@ -20,6 +20,11 @@ export interface ThemesApi {
   create(input: CreateThemeInput): Promise<Theme>;
   get(id: number, signal?: AbortSignal): Promise<Theme>;
   generate(id: number): Promise<GenerationAck>;
+  /**
+   * Use a user-supplied image as the artwork instead of generating one. Runs
+   * inline on the backend, so it resolves with the already-`ready` theme.
+   */
+  uploadArtwork(id: number, file: File): Promise<Theme>;
   regenerate(id: number, input?: RegenerateInput): Promise<GenerationAck>;
   preview(id: number, signal?: AbortSignal): Promise<PreviewResponse>;
   blend(id: number, input: BlendInput): Promise<BlendResponse>;
@@ -40,6 +45,12 @@ export const themesApi: ThemesApi = {
 
   generate(id) {
     return request<GenerationAck>(`/themes/${id}/generate`, { method: 'POST' });
+  },
+
+  uploadArtwork(id, file) {
+    const form = new FormData();
+    form.append('image', file);
+    return upload<Theme>(`/themes/${id}/upload-artwork`, form);
   },
 
   regenerate(id, input) {

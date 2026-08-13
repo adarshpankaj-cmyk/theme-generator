@@ -11,15 +11,10 @@ require "concurrent"
 # call succeeds it attaches the images in variant order, caches each variant's tint
 # (§5), selects variant 0, and marks the theme ready; on any failure it marks the
 # theme failed. See SPEC.md §6.
+#
+# The user-supplied-artwork counterpart is ArtworkUploadService; canvas
+# dimensions and cropping are shared via ArtworkCanvas.
 class ImageGenerationService
-  # canvas => { attachment, and the ENV keys / defaults for exact dimensions }.
-  CANVASES = {
-    "a4" => { attachment: :a4_images, width_env: "A4_WIDTH", height_env: "A4_HEIGHT",
-              default_width: 600, default_height: 848 },
-    "a5" => { attachment: :a5_images, width_env: "A5_WIDTH", height_env: "A5_HEIGHT",
-              default_width: 1024, default_height: 724 }
-  }.freeze
-
   DEFAULT_VARIANT_COUNT = 4
   DEFAULT_CONCURRENCY = 4
 
@@ -69,16 +64,15 @@ class ImageGenerationService
   # Generate every (canvas, variant) image concurrently and return the processed
   # JPEG bytes grouped by canvas, in variant order. Raises the first engine error.
   def generate_all
-    jobs = CANVASES.keys.product((0...variant_count).to_a)
+    jobs = ArtworkCanvas::IDS.product((0...variant_count).to_a)
     pool = Concurrent::FixedThreadPool.new([concurrency, jobs.size].min)
     results = Concurrent::Hash.new
     errors = Concurrent::Array.new
 
     futures = jobs.map do |canvas, index|
       Concurrent::Future.execute(executor: pool) do
-        config = CANVASES.fetch(canvas)
         raw = @engine.generate(prompt: @prompt_builder.for_canvas(canvas))
-        results[[canvas, index]] = resize(raw, dimension(config, :width), dimension(config, :height))
+        results[[canvas, index]] = ArtworkCanvas.fit(raw, canvas)
       rescue StandardError => e
         errors << e
       end
@@ -89,31 +83,21 @@ class ImageGenerationService
     pool.wait_for_termination
     raise errors.first if errors.any?
 
-    CANVASES.keys.index_with do |canvas|
+    ArtworkCanvas::IDS.index_with do |canvas|
       (0...variant_count).map { |index| results.fetch([canvas, index]) }
     end
   end
 
   # Attach each canvas's variants in order so attachment id order == variant index.
   def attach_variants(processed)
-    CANVASES.each do |canvas, config|
+    ArtworkCanvas::IDS.each do |canvas|
       processed.fetch(canvas).each_with_index do |bytes, index|
-        @theme.public_send(config[:attachment]).attach(
+        @theme.public_send(ArtworkCanvas.attachment_name(canvas)).attach(
           io: StringIO.new(bytes),
           filename: "#{canvas}_#{index}.jpeg",
           content_type: "image/jpeg"
         )
       end
     end
-  end
-
-  # Smart-crop to exactly width×height and re-encode as JPEG (SPEC.md §6.3).
-  def resize(bytes, width, height)
-    image = Vips::Image.thumbnail_buffer(bytes, width, height: height, crop: :attention)
-    image.jpegsave_buffer(Q: 90)
-  end
-
-  def dimension(config, axis)
-    Integer(ENV.fetch(config[:"#{axis}_env"], config[:"default_#{axis}"]))
   end
 end
