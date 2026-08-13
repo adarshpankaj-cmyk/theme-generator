@@ -38,9 +38,11 @@ module Api
     end
 
     # PATCH /api/themes/:id/blend
+    # Returns CSS for every template the edit touched — an opacity change is
+    # canvas-wide, so it comes back with all templates of that canvas.
     def blend
-      css = BlendUpdaterService.new(@theme, params.require(:template_id), blend_attrs).call
-      render json: { template_id: params[:template_id], css: css }
+      templates = BlendUpdaterService.new(@theme, params.require(:template_id), blend_attrs).call
+      render json: { templates: templates }
     end
 
     # PATCH /api/themes/:id/select-variant

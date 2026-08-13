@@ -68,7 +68,14 @@ export function BlendPanel({
         </h4>
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <Label className="text-sm text-muted-foreground">Opacity</Label>
+            <Label className="text-sm text-muted-foreground">
+              Opacity
+              {definition ? (
+                <span className="text-xs text-muted-foreground/70">
+                  all {definition.canvas.toUpperCase()}
+                </span>
+              ) : null}
+            </Label>
             <span className="font-mono text-xs text-muted-foreground">{toPercent(opacity)}</span>
           </div>
           <Slider

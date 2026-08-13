@@ -23,6 +23,7 @@ class CssAssemblerService
       left: 0;
       width: 100%%;
       height: 100%%;
+      min-height: 100vh;
       background-image: url("./flash-themes/%{overlay_name}/images/%{canvas}.jpeg");
       background-size: cover;
       background-position: center;
@@ -34,6 +35,14 @@ class CssAssemblerService
   CSS
 
   TRANSFORM_LINE = "  transform: translate(0%, 0%) scale(1);"
+
+  # `height: 100%` on the absolutely-positioned overlay resolves against the
+  # *body* box, which is only as tall as the invoice content — on a short
+  # invoice that leaves the rest of the page uncovered (measured: 43px of a
+  # 1123px A4 page). The reference themes have the same gap. `min-height`
+  # makes the overlay cover whichever is taller, the content or the page; it
+  # is inert otherwise, since the overlay is z-index:-1 / pointer-events:none.
+  MIN_HEIGHT_LINE = "  min-height: 100vh;"
 
   # @param theme [Theme]
   # @param template_id [String]
@@ -62,7 +71,12 @@ class CssAssemblerService
   # Normalize a CSS string so semantically-equal files compare equal despite the
   # reference source's inconsistencies (SPEC.md §2.2 / §11): LF endings, no
   # trailing whitespace, always `mix-blend-mode: multiply !important;`, always
-  # the `transform` line, and no surrounding blank lines.
+  # the `transform` line, always the `min-height` overlay guard, and no
+  # surrounding blank lines.
+  #
+  # Normalizing the reference up to our output (rather than the reverse) is what
+  # keeps the F3 golden test honest about deliberate divergences: see
+  # MIN_HEIGHT_LINE.
   # @param css [String]
   # @return [String]
   def self.normalize(css)
@@ -73,6 +87,10 @@ class CssAssemblerService
 
     unless text.include?("transform: translate(0%, 0%) scale(1);")
       text = text.sub("  position: relative;\n", "  position: relative;\n#{TRANSFORM_LINE}\n")
+    end
+
+    unless text.include?("min-height: 100vh;")
+      text = text.sub("  height: 100%;\n", "  height: 100%;\n#{MIN_HEIGHT_LINE}\n")
     end
 
     text.strip

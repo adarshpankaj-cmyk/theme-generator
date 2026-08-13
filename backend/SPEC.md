@@ -142,6 +142,14 @@ theme_luxury:
 Images: two ActiveStorage attachments, `a4_image` and `a5_image`.
 
 ### 4.1 `blend_overrides` JSONB shape
+
+**Scope of each key.** `tint_hex` and `strips` are per-template — they describe one
+layout's furniture. `artwork_opacity` is per-**canvas**: it is how strongly the artwork
+reads behind a page of a given size, so setting it on any A4 template writes it to every
+A4 template (likewise A5). It is still *stored* per template id, so the assembler stays a
+pure per-template function; the fan-out happens in `BlendUpdaterService`, which is why one
+blend request can return several templates' CSS.
+
 Only stores deltas from defaults; empty means "use registry + theme defaults". Keyed by template id:
 ```json
 {
@@ -231,7 +239,7 @@ JSON, under `/api/`. Shapes the frontend (F7–F10) builds against.
 | `POST` | `/themes/:id/generate` | — | `202 { id, status:"generating" }` |
 | `GET` | `/themes/:id` | — | theme (see below) |
 | `GET` | `/themes/:id/preview` | — | `{ templates: [ { template_id, canvas, css, image_url, base_invoice_html } ] }` |
-| `PATCH` | `/themes/:id/blend` | `{ template_id, artwork_opacity?, tint_hex?, strips? }` | `{ template_id, css }` (recomputed) |
+| `PATCH` | `/themes/:id/blend` | `{ template_id, artwork_opacity?, tint_hex?, strips? }` | `{ templates: [{ template_id, css }, …] }` (every template the edit touched) |
 | `POST` | `/themes/:id/regenerate` | `{ prompt? }` | `202 { status:"generating" }` |
 | `POST` | `/themes/:id/publish` | — | `{ status:"published" }` or error |
 | `GET` | `/themes/:id/download` | — | `application/zip` of the folder (manual verification before publish API exists) |
@@ -278,7 +286,7 @@ PUBLISH_API_TOKEN=        # [NEED]
 
 ## 11. Verification
 
-- **Golden test (F3, the important one):** for a fixed image + `tint_hex=#FEF5E9` + `opacity=0.35` + `slug=ganesh`, assemble all 9 templates and assert each **normalized** string equals the **normalized** reference at `~/Downloads/Themes/ganesh/css/<template>/latest.css`. Normalization = LF endings, strip trailing whitespace, force `mix-blend-mode: multiply !important;`, ensure the `transform` line present. Selectors, order, tint, opacity, and the `flash-themes/ganesh/images/<canvas>.jpeg` path must all match.
+- **Golden test (F3, the important one):** for a fixed image + `tint_hex=#FEF5E9` + `opacity=0.35` + `slug=ganesh`, assemble all 9 templates and assert each **normalized** string equals the **normalized** reference at `~/Downloads/Themes/ganesh/css/<template>/latest.css`. Normalization = LF endings, strip trailing whitespace, force `mix-blend-mode: multiply !important;`, ensure the `transform` line present, ensure the `min-height: 100vh` overlay guard present. That last one is a deliberate divergence from the reference, not an inconsistency in it: `height: 100%` resolves against the *body* box, so on an invoice shorter than its page the overlay stops early (measured: 43px of a 1123px A4 page, on the reference theme too). Normalizing the reference *up* to our output keeps the golden test comparing everything else byte-for-byte. Selectors, order, tint, opacity, and the `flash-themes/ganesh/images/<canvas>.jpeg` path must all match.
 - **Tint (§5):** feed the ganesh `a4.jpeg` → assert output is a light warm tint near `#FEF5E9` (e.g. lightness ≥ 0.9, saturation ≤ 0.2).
 - **Generation (F2):** run once → two images at exact px with a visibly calm center.
 - **End-to-end:** `POST /themes` → `generate` → poll `ready` → `download` → unzip → folder shape matches a real theme folder.

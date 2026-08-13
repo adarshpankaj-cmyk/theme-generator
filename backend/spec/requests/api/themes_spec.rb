@@ -113,10 +113,39 @@ RSpec.describe "Api::Themes", type: :request do
       }
 
       expect(response).to have_http_status(:ok)
-      body = response.parsed_body
-      expect(body["template_id"]).to eq("theme_one")
-      expect(body["css"]).not_to include(".page-footer")
+      templates = response.parsed_body["templates"]
+      expect(templates.map { |t| t["template_id"] }).to eq(["theme_one"])
+      expect(templates.first["css"]).not_to include(".page-footer")
       expect(theme.reload.blend_overrides.dig("theme_one", "strips", ".page-footer", "enabled")).to eq(false)
+    end
+
+    it "applies an opacity change to every template on the same canvas" do
+      patch "/api/themes/#{theme.id}/blend", params: {
+        template_id: "theme_one", artwork_opacity: 0.42
+      }
+
+      expect(response).to have_http_status(:ok)
+      a4_ids = TemplateRegistry.all.select(&:a4?).map(&:id)
+      a5_ids = TemplateRegistry.all.select(&:a5?).map(&:id)
+
+      returned = response.parsed_body["templates"]
+      expect(returned.map { |t| t["template_id"] }).to eq(a4_ids)
+      expect(returned).to all(include("css" => include("opacity: 0.42;")))
+
+      overrides = theme.reload.blend_overrides
+      expect(a4_ids.map { |id| overrides.dig(id, "artwork_opacity") }).to all(eq(0.42))
+      expect(a5_ids.map { |id| overrides.dig(id, "artwork_opacity") }).to all(be_nil)
+    end
+
+    it "keeps tint scoped to the edited template" do
+      patch "/api/themes/#{theme.id}/blend", params: {
+        template_id: "theme_one", tint_hex: "#ABCDEF"
+      }
+
+      expect(response.parsed_body["templates"].map { |t| t["template_id"] }).to eq(["theme_one"])
+      overrides = theme.reload.blend_overrides
+      expect(overrides.dig("theme_one", "tint_hex")).to eq("#ABCDEF")
+      expect(overrides.dig("theme_luxury", "tint_hex")).to be_nil
     end
 
     it "returns 422 for an unknown template" do

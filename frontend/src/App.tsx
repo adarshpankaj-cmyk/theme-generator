@@ -15,7 +15,7 @@ import {
   useThemePreview,
   useUploadArtwork,
 } from '@/hooks/use-themes';
-import { withStripPatch, withTemplatePatch } from '@/lib/blend';
+import { withCanvasPatch, withStripPatch, withTemplatePatch } from '@/lib/blend';
 import { findTemplate } from '@/lib/template-registry';
 import type {
   BlendOverrides,
@@ -132,8 +132,16 @@ export function App(): JSX.Element {
               strips: override.strips,
             },
             {
+              // An opacity edit is canvas-wide, so the response can carry every
+              // template of that canvas — merge them all, not just the edited one.
               onSuccess: (result) =>
-                setCssOverrides((prev) => ({ ...prev, [result.template_id]: result.css })),
+                setCssOverrides((prev) => {
+                  const next = { ...prev };
+                  for (const patched of result.templates) {
+                    next[patched.template_id] = patched.css;
+                  }
+                  return next;
+                }),
             },
           );
         }, BLEND_DEBOUNCE_MS),
@@ -167,9 +175,17 @@ export function App(): JSX.Element {
     setSelectedStrips((prev) => ({ ...prev, [canvas]: selector }));
   }, []);
 
+  // Opacity belongs to the page size, not the layout: one drag applies to every
+  // template on that canvas. The backend fans the same edit out server-side, so
+  // a single PATCH still covers the canvas.
   const handleArtworkOpacity = useCallback(
-    (templateId: string, value: number): void =>
-      commit(templateId, withTemplatePatch(overrides, templateId, { artwork_opacity: value })),
+    (templateId: string, value: number): void => {
+      const canvas = findTemplate(templateId)?.canvas;
+      if (!canvas) {
+        return;
+      }
+      commit(templateId, withCanvasPatch(overrides, canvas, { artwork_opacity: value }));
+    },
     [commit, overrides],
   );
 

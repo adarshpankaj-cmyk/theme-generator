@@ -86,9 +86,19 @@ export interface GenerationAck {
 }
 
 /** Recomputed CSS for one template (PATCH /themes/:id/blend). */
-export interface BlendResponse {
+/** One template's recomputed stylesheet. */
+export interface TemplateCss {
   readonly template_id: string;
   readonly css: string;
+}
+
+/**
+ * Result of a blend edit (PATCH /themes/:id/blend). Carries every template the
+ * edit touched: tint and strip edits return just the edited template, while an
+ * artwork-opacity change is canvas-wide and returns all templates of that canvas.
+ */
+export interface BlendResponse {
+  readonly templates: readonly TemplateCss[];
 }
 
 /**
@@ -98,7 +108,7 @@ export interface BlendResponse {
 export interface SelectVariantResponse {
   readonly selected_variant: number;
   readonly tint_hex: string | null;
-  readonly templates: readonly BlendResponse[];
+  readonly templates: readonly TemplateCss[];
 }
 
 /** Publish result (POST /themes/:id/publish). */
