@@ -40,6 +40,26 @@ RSpec.describe BlendUpdaterService do
     end
   end
 
+  describe "opacity × strip tint (the two blend behaviours combined)" do
+    it "fades the shared strip tint across the whole canvas, not just the edited template" do
+      result = described_class.new(theme, "theme_one", { "artwork_opacity" => 0.5 }).call
+
+      # #FEF5E9 => 254, 245, 233
+      expect(result.map { |entry| entry[:template_id] }).to eq(a4_ids)
+      expect(result).to all(include(css: include("rgba(254, 245, 233, 0.5)")))
+    end
+
+    it "scales a customized strip's relative alpha by the canvas opacity" do
+      described_class.new(theme, "theme_one", { "artwork_opacity" => 0.5 }).call
+      result = described_class.new(
+        theme, "theme_one", { "strips" => { ".page-footer" => { "alpha" => "0.5" } } }
+      ).call
+
+      # 0.5 canvas opacity × 0.5 relative strip alpha => 0.25
+      expect(result.first[:css]).to include(".page-footer {\n  background-color: rgba(254, 245, 233, 0.25)")
+    end
+  end
+
   describe "template-scoped attributes" do
     it "keeps tint on the edited template only" do
       result = described_class.new(theme, "theme_one", { "tint_hex" => "#ABCDEF" }).call
@@ -47,6 +67,14 @@ RSpec.describe BlendUpdaterService do
       expect(result.map { |entry| entry[:template_id] }).to eq(["theme_one"])
       expect(theme.reload.blend_overrides.dig("theme_one", "tint_hex")).to eq("#ABCDEF")
       expect(theme.blend_overrides.dig("theme_luxury", "tint_hex")).to be_nil
+    end
+
+    it "keeps blend mode on the edited template only" do
+      result = described_class.new(theme, "theme_one", { "blend_mode" => "screen" }).call
+
+      expect(result.map { |entry| entry[:template_id] }).to eq(["theme_one"])
+      expect(theme.reload.blend_overrides.dig("theme_one", "blend_mode")).to eq("screen")
+      expect(theme.blend_overrides.dig("theme_luxury", "blend_mode")).to be_nil
     end
 
     it "keeps strips on the edited template only" do

@@ -15,9 +15,16 @@ import {
   useThemePreview,
   useUploadArtwork,
 } from '@/hooks/use-themes';
-import { withCanvasPatch, withStripPatch, withTemplatePatch } from '@/lib/blend';
+import {
+  withCanvasPatch,
+  withStripPatch,
+  withTemplatePatch,
+  withTemplateTintCleared,
+} from '@/lib/blend';
 import { findTemplate } from '@/lib/template-registry';
 import type {
+  BlendInput,
+  BlendMode,
   BlendOverrides,
   Canvas,
   CreateThemeInput,
@@ -30,11 +37,39 @@ import type {
 /** Debounce window for blend PATCHes while dragging sliders (SPEC §5). */
 const BLEND_DEBOUNCE_MS = 250;
 
+/**
+ * Build the `PATCH /blend` body for one template. `tint_hex ?? null` makes a
+ * cleared tint an explicit reset (not an omitted, and therefore ignored, field).
+ */
+function toBlendInput(templateId: string, override: TemplateOverride): BlendInput {
+  return {
+    template_id: templateId,
+    artwork_opacity: override.artwork_opacity,
+    tint_hex: override.tint_hex ?? null,
+    blend_mode: override.blend_mode,
+    strips: override.strips,
+  };
+}
+
 /** Panel headings, keyed by canvas. */
 const CANVAS_TITLES: Record<Canvas, string> = {
   a4: 'A4 invoices',
   a5: 'A5 invoices',
 };
+
+/**
+ * Optional deep-link: `?theme=<id>` opens straight into an existing theme,
+ * handy for sharing/testing a specific theme without re-generating. Invalid or
+ * absent values fall through to the normal empty (generate) state.
+ */
+function readInitialThemeId(): number | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  const raw = new URLSearchParams(window.location.search).get('theme');
+  const id = raw ? Number(raw) : Number.NaN;
+  return Number.isInteger(id) && id > 0 ? id : null;
+}
 
 /**
  * Root of the single-screen app (SPEC §3). Owns the current theme id, the
@@ -43,7 +78,7 @@ const CANVAS_TITLES: Record<Canvas, string> = {
  * loop across the two canvas panels.
  */
 export function App(): JSX.Element {
-  const [currentThemeId, setCurrentThemeId] = useState<number | null>(null);
+  const [currentThemeId, setCurrentThemeId] = useState<number | null>(readInitialThemeId);
   const [activeIndex, setActiveIndex] = useState<Record<Canvas, number>>({ a4: 0, a5: 0 });
   const [selectedStrips, setSelectedStrips] = useState<Record<Canvas, string | null>>({
     a4: null,
@@ -124,26 +159,18 @@ export function App(): JSX.Element {
       timers.set(
         templateId,
         setTimeout(() => {
-          blend.mutate(
-            {
-              template_id: templateId,
-              artwork_opacity: override.artwork_opacity,
-              tint_hex: override.tint_hex,
-              strips: override.strips,
-            },
-            {
-              // An opacity edit is canvas-wide, so the response can carry every
-              // template of that canvas — merge them all, not just the edited one.
-              onSuccess: (result) =>
-                setCssOverrides((prev) => {
-                  const next = { ...prev };
-                  for (const patched of result.templates) {
-                    next[patched.template_id] = patched.css;
-                  }
-                  return next;
-                }),
-            },
-          );
+          blend.mutate(toBlendInput(templateId, override), {
+            // An opacity edit is canvas-wide, so the response can carry every
+            // template of that canvas — merge them all, not just the edited one.
+            onSuccess: (result) =>
+              setCssOverrides((prev) => {
+                const next = { ...prev };
+                for (const patched of result.templates) {
+                  next[patched.template_id] = patched.css;
+                }
+                return next;
+              }),
+          });
         }, BLEND_DEBOUNCE_MS),
       );
     },
@@ -195,6 +222,17 @@ export function App(): JSX.Element {
     [commit, overrides],
   );
 
+  const handleTemplateTintClear = useCallback(
+    (templateId: string): void => commit(templateId, withTemplateTintCleared(overrides, templateId)),
+    [commit, overrides],
+  );
+
+  const handleBlendMode = useCallback(
+    (templateId: string, mode: BlendMode): void =>
+      commit(templateId, withTemplatePatch(overrides, templateId, { blend_mode: mode })),
+    [commit, overrides],
+  );
+
   const handleStripEnabled = useCallback(
     (templateId: string, selector: string, enabled: boolean): void =>
       commit(templateId, withStripPatch(overrides, templateId, selector, { enabled })),
@@ -239,24 +277,44 @@ export function App(): JSX.Element {
 
   // Pick an artwork variant: swap the image instantly, then persist the choice
   // and apply the recomputed per-template CSS (new tint) via the override path.
+  // The variant recompute reads *persisted* overrides, so we first flush any
+  // debounced blend edits still in flight — otherwise switching images would
+  // clobber the user's most recent tuning.
   const handleSelectVariant = useCallback(
     (index: number): void => {
       setSelectedVariant(index);
-      selectVariant.mutate(
-        { variant: index },
-        {
-          onSuccess: (result) =>
-            setCssOverrides((prev) => {
-              const next = { ...prev };
-              for (const patched of result.templates) {
-                next[patched.template_id] = patched.css;
-              }
-              return next;
-            }),
-        },
+
+      const timers = blendTimers.current;
+      const pending = Array.from(timers.keys());
+      pending.forEach((id) => {
+        const timer = timers.get(id);
+        if (timer) {
+          clearTimeout(timer);
+        }
+        timers.delete(id);
+      });
+
+      const flushed = Promise.all(
+        pending.map((id) => blend.mutateAsync(toBlendInput(id, overrides[id] ?? {}))),
+      );
+
+      void flushed.then(() =>
+        selectVariant.mutate(
+          { variant: index },
+          {
+            onSuccess: (result) =>
+              setCssOverrides((prev) => {
+                const next = { ...prev };
+                for (const patched of result.templates) {
+                  next[patched.template_id] = patched.css;
+                }
+                return next;
+              }),
+          },
+        ),
       );
     },
-    [selectVariant],
+    [blend, overrides, selectVariant],
   );
 
   const templatesByCanvas = useMemo(() => {
@@ -378,6 +436,8 @@ export function App(): JSX.Element {
                 onSelectStrip={handleSelectStrip}
                 onArtworkOpacity={handleArtworkOpacity}
                 onTemplateTint={handleTemplateTint}
+                onTemplateTintClear={handleTemplateTintClear}
+                onBlendMode={handleBlendMode}
                 onStripEnabled={handleStripEnabled}
                 onStripAlpha={handleStripAlpha}
                 onStripTint={handleStripTint}

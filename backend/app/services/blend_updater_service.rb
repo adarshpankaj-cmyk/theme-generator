@@ -5,21 +5,21 @@
 # recomputed CSS for every template the edit touched. Powers
 # `PATCH /themes/:id/blend` (SPEC.md §8, §4.1).
 #
-# Scope differs by attribute. Tint and strips are per-template: they describe
-# one layout's furniture. Artwork opacity is per-*canvas* — it is how strongly
-# the artwork reads behind a page of a given size, so setting it on any A4
-# template applies to every A4 template, and likewise for A5. That is why a
+# Scope differs by attribute. Tint, blend mode and strips are per-template: they
+# describe one layout's furniture. Artwork opacity is per-*canvas* — it is how
+# strongly the artwork reads behind a page of a given size, so setting it on any
+# A4 template applies to every A4 template, and likewise for A5. That is why a
 # single edit can come back with several templates' CSS.
 class BlendUpdaterService
   # Keys stored against the edited template alone.
-  TEMPLATE_KEYS = %w[tint_hex].freeze
+  TEMPLATE_KEYS = %w[tint_hex blend_mode].freeze
 
   # Keys fanned out to every template sharing the edited template's canvas.
   CANVAS_KEYS = %w[artwork_opacity].freeze
 
   # @param theme [Theme]
   # @param template_id [String]
-  # @param attrs [Hash] any of "artwork_opacity", "tint_hex", "strips"
+  # @param attrs [Hash] any of "artwork_opacity", "tint_hex", "blend_mode", "strips"
   def initialize(theme, template_id, attrs)
     @theme = theme
     @template_id = template_id.to_s
@@ -42,7 +42,7 @@ class BlendUpdaterService
 
   private
 
-  # Tint and strips land on the edited template only.
+  # Tint, blend mode and strips land on the edited template only.
   def apply_template_attrs(overrides)
     entry = (overrides[@template_id] ||= {})
 

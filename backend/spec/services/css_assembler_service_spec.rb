@@ -58,7 +58,29 @@ RSpec.describe CssAssemblerService do
     it "prefers a template-level tint override over the theme default" do
       ganesh.blend_overrides = { "theme_luxury" => { "tint_hex" => "#FFF5DA" } }
       css = described_class.new(ganesh, "theme_luxury").call
-      expect(css).to include("background-color: #FFF5DA !important;")
+      # #FFF5DA => 255, 245, 218, carried at the effective opacity (0.35).
+      expect(css).to include("background-color: rgba(255, 245, 218, 0.35) !important;")
+    end
+
+    it "fades the shared strip tint with the artwork opacity (whole-overlay fade)" do
+      ganesh.blend_overrides = { "theme_luxury" => { "artwork_opacity" => 0.5 } }
+      css = described_class.new(ganesh, "theme_luxury").call
+      expect(css).to include("opacity: 0.5;")
+      expect(css).to include("background-color: rgba(254, 245, 233, 0.5) !important;")
+    end
+  end
+
+  describe "blend mode (§7)" do
+    it "defaults to multiply" do
+      css = described_class.new(ganesh, "theme_luxury").call
+      expect(css).to include("mix-blend-mode: multiply !important;")
+    end
+
+    it "applies a template-level blend_mode override to every strip rule" do
+      ganesh.blend_overrides = { "theme_luxury" => { "blend_mode" => "screen" } }
+      css = described_class.new(ganesh, "theme_luxury").call
+      expect(css).to include("mix-blend-mode: screen !important;")
+      expect(css).not_to match(/mix-blend-mode: multiply/)
     end
   end
 
@@ -72,7 +94,7 @@ RSpec.describe CssAssemblerService do
       expect(css).to include(".title-bill-ship-to")
     end
 
-    it "emits a customized strip as its own rgba(...) rule" do
+    it "emits a customized strip as its own rgba(...) rule with opacity-scaled alpha" do
       ganesh.blend_overrides = {
         "theme_one" => {
           "strips" => {
@@ -81,10 +103,21 @@ RSpec.describe CssAssemblerService do
         }
       }
       css = described_class.new(ganesh, "theme_one").call
-      # #F3E4C7 => 243, 228, 199
-      expect(css).to include(".items-table-header {\n  background-color: rgba(243, 228, 199, 0.8) !important;")
+      # #F3E4C7 => 243, 228, 199; rendered alpha = opacity 0.35 × strip alpha 0.8 = 0.28.
+      expect(css).to include(".items-table-header {\n  background-color: rgba(243, 228, 199, 0.28) !important;")
       # the customized selector is no longer in the shared rule's selector list
-      expect(css).not_to match(/\.items-table-header,\n.*background-color: #FEF5E9/m)
+      expect(css).not_to match(/\.items-table-header,\n.*background-color: rgba\(254, 245, 233/m)
+    end
+
+    it "renders a tint-only custom strip at the full effective opacity" do
+      ganesh.blend_overrides = {
+        "theme_one" => {
+          "strips" => { ".items-table-header" => { "tint_hex" => "#F3E4C7" } }
+        }
+      }
+      css = described_class.new(ganesh, "theme_one").call
+      # No per-strip alpha → multiplier 1 → rendered alpha == effective opacity (0.35).
+      expect(css).to include(".items-table-header {\n  background-color: rgba(243, 228, 199, 0.35) !important;")
     end
   end
 end

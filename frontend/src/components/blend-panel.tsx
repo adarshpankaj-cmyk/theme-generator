@@ -2,9 +2,11 @@ import type { JSX } from 'react';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
+import { Select } from '@/components/ui/select';
 import { ColorField } from '@/components/color-field';
-import type { BlendOverrides } from '@/api/types';
+import type { BlendMode, BlendOverrides } from '@/api/types';
 import {
+  effectiveBlendMode,
   effectiveOpacity,
   effectiveStripAlpha,
   isStripEnabled,
@@ -14,6 +16,18 @@ import {
 import { findTemplate } from '@/lib/template-registry';
 import { cn } from '@/lib/utils';
 
+/** Blend modes offered in the picker, with human labels. */
+const BLEND_MODE_OPTIONS: ReadonlyArray<{ value: BlendMode; label: string }> = [
+  { value: 'multiply', label: 'Multiply' },
+  { value: 'screen', label: 'Screen' },
+  { value: 'overlay', label: 'Overlay' },
+  { value: 'darken', label: 'Darken' },
+  { value: 'lighten', label: 'Lighten' },
+  { value: 'hard-light', label: 'Hard light' },
+  { value: 'soft-light', label: 'Soft light' },
+  { value: 'normal', label: 'Normal' },
+];
+
 interface BlendPanelProps {
   readonly templateId: string;
   readonly selectedSelector: string | null;
@@ -22,6 +36,8 @@ interface BlendPanelProps {
   readonly onSelectStrip: (selector: string) => void;
   readonly onArtworkOpacity: (value: number) => void;
   readonly onTemplateTint: (hex: string) => void;
+  readonly onTemplateTintClear: () => void;
+  readonly onBlendMode: (mode: BlendMode) => void;
   readonly onStripEnabled: (selector: string, enabled: boolean) => void;
   readonly onStripAlpha: (selector: string, alpha: number) => void;
   readonly onStripTint: (selector: string, hex: string) => void;
@@ -51,6 +67,8 @@ export function BlendPanel({
   onSelectStrip,
   onArtworkOpacity,
   onTemplateTint,
+  onTemplateTintClear,
+  onBlendMode,
   onStripEnabled,
   onStripAlpha,
   onStripTint,
@@ -59,6 +77,7 @@ export function BlendPanel({
   const selectors = definition?.selectors ?? [];
   const opacity = effectiveOpacity(overrides, templateId, themeOpacity);
   const tint = templateOverride(overrides, templateId).tint_hex ?? '';
+  const blendMode = effectiveBlendMode(overrides, templateId);
 
   return (
     <div className="flex h-full flex-col gap-5">
@@ -87,7 +106,26 @@ export function BlendPanel({
             onValueChange={(value) => onArtworkOpacity(Array.isArray(value) ? value[0] : value)}
           />
         </div>
-        <ColorField label="Tint" value={tint} onChange={onTemplateTint} />
+        <ColorField
+          label="Tint"
+          value={tint}
+          onChange={onTemplateTint}
+          onClear={onTemplateTintClear}
+        />
+        <div className="flex items-center justify-between">
+          <Label className="text-sm text-muted-foreground">Blend</Label>
+          <Select
+            value={blendMode}
+            aria-label="Blend mode"
+            onChange={(event) => onBlendMode(event.target.value as BlendMode)}
+          >
+            {BLEND_MODE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </Select>
+        </div>
       </div>
 
       <div className="flex flex-col gap-2 border-t border-border/70 pt-4">
@@ -128,7 +166,6 @@ export function BlendPanel({
           templateId={templateId}
           selector={selectedSelector}
           overrides={overrides}
-          fallbackAlpha={opacity}
           onStripEnabled={onStripEnabled}
           onStripAlpha={onStripAlpha}
           onStripTint={onStripTint}
@@ -146,7 +183,6 @@ interface StripControlsProps {
   readonly templateId: string;
   readonly selector: string;
   readonly overrides: BlendOverrides;
-  readonly fallbackAlpha: number;
   readonly onStripEnabled: (selector: string, enabled: boolean) => void;
   readonly onStripAlpha: (selector: string, alpha: number) => void;
   readonly onStripTint: (selector: string, hex: string) => void;
@@ -156,13 +192,12 @@ function StripControls({
   templateId,
   selector,
   overrides,
-  fallbackAlpha,
   onStripEnabled,
   onStripAlpha,
   onStripTint,
 }: StripControlsProps): JSX.Element {
   const enabled = isStripEnabled(overrides, templateId, selector);
-  const alpha = effectiveStripAlpha(overrides, templateId, selector, fallbackAlpha);
+  const alpha = effectiveStripAlpha(overrides, templateId, selector);
   const tint = stripSettings(overrides, templateId, selector).tint_hex ?? '';
 
   return (
@@ -178,8 +213,8 @@ function StripControls({
 
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <Label className="text-sm text-muted-foreground">Alpha</Label>
-          <span className="font-mono text-xs text-muted-foreground">{alpha.toFixed(2)}</span>
+          <Label className="text-sm text-muted-foreground">Opacity</Label>
+          <span className="font-mono text-xs text-muted-foreground">{toPercent(alpha)}</span>
         </div>
         <Slider
           value={[alpha]}
@@ -187,7 +222,7 @@ function StripControls({
           max={1}
           step={0.01}
           disabled={!enabled}
-          aria-label="Strip alpha"
+          aria-label="Strip opacity"
           onValueChange={(value) => onStripAlpha(selector, Array.isArray(value) ? value[0] : value)}
         />
       </div>

@@ -68,10 +68,16 @@ body::before {
   pointer-events: none;
 }
 {{SELECTOR_LIST}} {
-  background-color: {{TINT_HEX}} !important;
-  mix-blend-mode: multiply !important;
+  background-color: rgba({{TINT_RGB}}, {{OPACITY}}) !important;
+  mix-blend-mode: {{BLEND_MODE}} !important;
 }
 ```
+
+The shared strip rule is a **deliberate divergence** from the reference, which paints a
+solid `{{TINT_HEX}}` and so fades only the watermark when opacity drops. Carrying the
+opacity into the tint makes the one artwork-opacity control fade the whole overlay —
+watermark and tints together — which is what the blend editor's slider implies. §11
+normalizes the reference *up* to this form so the golden test stays honest.
 
 Substitutions:
 | Token | Source | Notes |
@@ -81,11 +87,13 @@ Substitutions:
 | `{{OPACITY}}` | effective opacity | Default `0.35`. |
 | `{{SELECTOR_LIST}}` | per template | The comma-joined selectors from §3, each on its own line. |
 | `{{TINT_HEX}}` | computed tint | See §5. |
+| `{{TINT_RGB}}` | computed tint | The same tint as decimal `r, g, b` components, for the `rgba(...)` form. |
+| `{{BLEND_MODE}}` | effective blend mode | Any CSS `mix-blend-mode` keyword; default `multiply`. Per template (§4.1). |
 
 ### 2.2 Normalization decisions (source has inconsistencies — standardize these)
 
 - The reference source drops `transform: translate(0%, 0%) scale(1);` in `theme_three` and adds trailing spaces after some `url(...)`. **Always** include the `transform` line and **never** emit trailing whitespace.
-- Source uses `mix-blend-mode: multiply;` in some files and `multiply !important;` in others. **Always emit `!important`** — it's safer against the base invoice CSS.
+- Source uses `mix-blend-mode: multiply;` in some files and `multiply !important;` in others. **Always emit `!important`** — it's safer against the base invoice CSS. This holds for whatever mode is in effect, not just `multiply`, since the mode is user-selectable (§4.1).
 - These normalizations mean a golden test must compare *normalized* strings, not raw source bytes (see §9).
 
 ---
@@ -143,8 +151,8 @@ Images: two ActiveStorage attachments, `a4_image` and `a5_image`.
 
 ### 4.1 `blend_overrides` JSONB shape
 
-**Scope of each key.** `tint_hex` and `strips` are per-template — they describe one
-layout's furniture. `artwork_opacity` is per-**canvas**: it is how strongly the artwork
+**Scope of each key.** `tint_hex`, `blend_mode` and `strips` are per-template — they
+describe one layout's furniture. `artwork_opacity` is per-**canvas**: it is how strongly the artwork
 reads behind a page of a given size, so setting it on any A4 template writes it to every
 A4 template (likewise A5). It is still *stored* per template id, so the assembler stays a
 pure per-template function; the fan-out happens in `BlendUpdaterService`, which is why one
@@ -156,6 +164,7 @@ Only stores deltas from defaults; empty means "use registry + theme defaults". K
   "theme_one": {
     "artwork_opacity": 0.30,
     "tint_hex": "#FBEFD8",
+    "blend_mode": "multiply",
     "strips": {
       ".page-footer":        { "enabled": false },
       ".items-table-header": { "enabled": true, "tint_hex": "#F3E4C7", "alpha": 0.8 }
@@ -218,8 +227,9 @@ Generation is ~10–30s × 2 → **do it in an ActiveJob** (`GenerateThemeImages
 ## 7. CSS assembler + packager (F3)
 
 `app/services/css_assembler_service.rb`:
-- Input: a `Theme` + a template id. Resolve canvas, selectors, opacity, and tint per §4.1.
-- **Strip grouping:** selectors with default settings (enabled, no custom tint/alpha) are joined into the single shared rule from §2.1. A strip with a custom `tint_hex`/`alpha` is emitted as its *own* rule using `rgba(tint, alpha)` + `mix-blend-mode: multiply !important;`. Disabled strips are omitted. (This is what powers the blend editor's per-part slider.)
+- Input: a `Theme` + a template id. Resolve canvas, selectors, opacity, tint and blend mode per §4.1.
+- **Strip grouping:** selectors with default settings (enabled, no custom tint/alpha) are joined into the single shared rule from §2.1. A strip with a custom `tint_hex`/`alpha` is emitted as its *own* rule using `rgba(tint, effective_opacity × alpha)` + `mix-blend-mode: <effective mode> !important;`. Disabled strips are omitted. (This is what powers the blend editor's per-part slider.)
+- **Per-strip `alpha` is a *relative* multiplier** on the template opacity, not an absolute alpha. It defaults to `1.0`, which renders identically to a default strip — so an untouched strip's slider reads 100% and matches what the backend actually paints, instead of jumping on first touch.
 - Output: the normalized CSS string for that template.
 
 `app/services/theme_packager_service.rb`:
@@ -286,7 +296,7 @@ PUBLISH_API_TOKEN=        # [NEED]
 
 ## 11. Verification
 
-- **Golden test (F3, the important one):** for a fixed image + `tint_hex=#FEF5E9` + `opacity=0.35` + `slug=ganesh`, assemble all 9 templates and assert each **normalized** string equals the **normalized** reference at `~/Downloads/Themes/ganesh/css/<template>/latest.css`. Normalization = LF endings, strip trailing whitespace, force `mix-blend-mode: multiply !important;`, ensure the `transform` line present, ensure the `min-height: 100vh` overlay guard present. That last one is a deliberate divergence from the reference, not an inconsistency in it: `height: 100%` resolves against the *body* box, so on an invoice shorter than its page the overlay stops early (measured: 43px of a 1123px A4 page, on the reference theme too). Normalizing the reference *up* to our output keeps the golden test comparing everything else byte-for-byte. Selectors, order, tint, opacity, and the `flash-themes/ganesh/images/<canvas>.jpeg` path must all match.
+- **Golden test (F3, the important one):** for a fixed image + `tint_hex=#FEF5E9` + `opacity=0.35` + `slug=ganesh`, assemble all 9 templates and assert each **normalized** string equals the **normalized** reference at `~/Downloads/Themes/ganesh/css/<template>/latest.css`. Normalization = LF endings, strip trailing whitespace, force `!important` on whatever `mix-blend-mode` is present, ensure the `transform` line present, ensure the `min-height: 100vh` overlay guard present, and lift a solid `background-color: #RRGGBB !important;` strip tint to the `rgba(tint, opacity)` form (§2.1) using the overlay opacity declared in the same file. The last two are deliberate divergences from the reference, not inconsistencies in it. For the tint, see §2.1. For the overlay guard: `height: 100%` resolves against the *body* box, so on an invoice shorter than its page the overlay stops early (measured: 43px of a 1123px A4 page, on the reference theme too). Normalizing the reference *up* to our output keeps the golden test comparing everything else byte-for-byte. Selectors, order, tint, opacity, and the `flash-themes/ganesh/images/<canvas>.jpeg` path must all match.
 - **Tint (§5):** feed the ganesh `a4.jpeg` → assert output is a light warm tint near `#FEF5E9` (e.g. lightness ≥ 0.9, saturation ≤ 0.2).
 - **Generation (F2):** run once → two images at exact px with a visibly calm center.
 - **End-to-end:** `POST /themes` → `generate` → poll `ready` → `download` → unzip → folder shape matches a real theme folder.
